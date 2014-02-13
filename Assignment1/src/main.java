@@ -6,6 +6,7 @@ import org.da.ass1.Connector;
 import org.da.ass1.GenericMessageListener;
 import org.da.ass1.RemoteHost;
 import org.da.ass1.messages.GenericMessage;
+import org.da.ass1.messages.Message;
 
 
 public class main implements GenericMessageListener{
@@ -21,6 +22,8 @@ public class main implements GenericMessageListener{
 		
 		Connector c = new Connector();
 		c.subscribe(new main());
+		
+		c.send(1, new Message());
 	}
 
 	@Override
