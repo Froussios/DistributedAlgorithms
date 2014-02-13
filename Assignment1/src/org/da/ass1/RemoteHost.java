@@ -5,13 +5,11 @@ public class RemoteHost {
 	private final long id;
 	private final String ip;
 	private final int regport;
-	private final int objport;
-	
-	public RemoteHost(long id, String ip, int regport, int objport){
+
+	public RemoteHost(long id, String ip, int regport){
 		this.id = id;
 		this.ip = ip;
 		this.regport = regport;
-		this.objport = objport;
 	}
 
 	public long getId() {
@@ -25,13 +23,9 @@ public class RemoteHost {
 	public int getRegport() {
 		return regport;
 	}
-
-	public int getObjport() {
-		return objport;
-	}
 	
 	public String getURL(String objectName) {
-		return "rmi://" + getIp() + ":" + getObjport() + "/" + objectName;
+		return "rmi://" + getIp() + ":" + getRegport() + "/" + objectName;
 	}
 	
 }

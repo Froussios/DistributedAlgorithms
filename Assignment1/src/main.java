@@ -24,11 +24,10 @@ public class main implements GenericMessageListener{
 	 * @throws AlreadyBoundException 
 	 */
 	public static void main(String[] args) throws FileNotFoundException, MalformedURLException, RemoteException, NotBoundException, AlreadyBoundException {
-		java.rmi.registry.LocateRegistry.createRegistry(1099);
-		
 		Long ourid = Long.parseLong(args[0]);
 		Map<Long, RemoteHost> hosts = new ConfigReader().read();
 		RemoteHost me = hosts.get(ourid);
+		java.rmi.registry.LocateRegistry.createRegistry(me.getRegport());
 		
 		Connector c = new Connector(me);
 		c.setIndex(hosts);

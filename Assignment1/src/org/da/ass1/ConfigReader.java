@@ -21,9 +21,8 @@ public class ConfigReader {
 			long id = sc.nextLong();
 			String ip = sc.next();
 			int regport = sc.nextInt();
-			int objport = sc.nextInt();
 			
-			map.put(id, new RemoteHost(id, ip, regport, objport));
+			map.put(id, new RemoteHost(id, ip, regport));
 		}
 		
 		return map;
