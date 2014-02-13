@@ -36,6 +36,7 @@ public class RMIReceiver
 		
 		this.connector = connector;
 		
+		System.out.println("Binding to " + urlname);
 		java.rmi.Naming.bind(urlname, this);
 	}
 

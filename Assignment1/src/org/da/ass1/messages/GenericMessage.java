@@ -1,12 +1,16 @@
 package org.da.ass1.messages;
 
+import java.io.Serializable;
+
 /**
  * Generic Message for sending to another process
  * using RMI
  *
  */
-public abstract class GenericMessage {
+public abstract class GenericMessage implements Serializable{
 
+	private static final long serialVersionUID = 1L;
+	
 	private long timestamp;
 	
 	/**
