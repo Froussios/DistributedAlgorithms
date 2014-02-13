@@ -25,12 +25,19 @@ public class TotalOrder implements GenericMessageListener{
 	
 	private HashMap<Long, List<Long>> acknowledged; // A map of acknowledgements of message ids coupled to a list of process ids that still need to acknowledge this message
 	
-	public TotalOrder(Connector connector, long myId, Set<Long> allIds){
+	private TotalOrderListener listener;
+	
+	public TotalOrder(Connector connector, long myId, Set<Long> allIds, TotalOrderListener listener){
 		this.connector = connector;
 		this.myId = myId;
 		this.queue = new PriorityQueue<Message>();
 		this.allIds = allIds;
 		this.acknowledged = new HashMap<Long, List<Long>>();
+		this.listener = listener;
+	}
+	
+	private void setListener(TotalOrderListener inListener) {
+		this.listener = inListener;
 	}
 	
 	/**
@@ -55,9 +62,14 @@ public class TotalOrder implements GenericMessageListener{
 		this.acknowledged.put(scalarClock, new ArrayList<Long>(this.allIds.size()));
 	}
 	
-	public void receiveMessage(Message m, long fromProcess){
-		// TODO Push to end of the queue (automaticly done by PriorityQueue.add() )
-		// TODO Send acks to everyone else
+	public void receiveMessage(Message m, long fromProcess) throws MalformedURLException, RemoteException, NotBoundException{
+		// Push to end of the queue (automaticly done by PriorityQueue.add() )
+		queue.add(m);
+		
+		// Send acks to everyone else
+		long messageId = m.getTimestamp(); // TODO Is this timestamp the one EVERYONE has for this message?
+		for (Long id : this.allIds)
+			connector.send(id, new Acknowledgement(messageId));
 	}
 	
 	public synchronized void receiveAcknowledgement(Acknowledgement a, long fromProcess){
@@ -74,8 +86,11 @@ public class TotalOrder implements GenericMessageListener{
 			// Everyone acknowledged, start popping from the front of the queue
 			while (!queue.isEmpty()){
 				long msg = queue.peek().getTimestamp();
-				if (acknowledged.get(msg).isEmpty())
-					queue.remove();
+				if (acknowledged.get(msg).isEmpty()) {
+					// Deliver message
+					Message m = queue.remove();
+					listener.deliverMessage(m);
+				}
 				else
 					break;	//Head is not ack'ed, stop
 			}
