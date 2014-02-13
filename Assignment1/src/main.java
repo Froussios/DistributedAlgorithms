@@ -5,15 +5,11 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.Map;
 
-import org.da.ass1.ConfigReader;
-import org.da.ass1.Connector;
-import org.da.ass1.GenericMessageListener;
-import org.da.ass1.RemoteHost;
-import org.da.ass1.messages.GenericMessage;
-import org.da.ass1.messages.Message;
+import org.da.ass1.*;
+import org.da.ass1.messages.*;
 
 
-public class main implements GenericMessageListener{
+public class main implements GenericMessageListener, TotalOrderListener{
 
 	/**
 	 * @param args
@@ -76,6 +72,11 @@ public class main implements GenericMessageListener{
 	@Override
 	public long getProcessId() {
 		return 1;
+	}
+
+	@Override
+	public void deliverMessage(Message message) {
+		// TODO Handle messages here		
 	}
 
 }
