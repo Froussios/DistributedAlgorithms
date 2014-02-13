@@ -1,16 +1,35 @@
 package org.da.ass1;
 
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.util.Map;
+
 import org.da.ass1.messages.GenericMessage;
+
+import org.da.ass1.connector.*;
 
 public class Connector {
 
+	private static String objectName = "DA-MessageReceiver";
+	
 	private long scalarClock;
 	
 	private GenericMessageListener gmListener;
 	
 	private long id;
 	
-	// TODO Keep track of some mapping of project ids to RMI endpoints
+	private Map<Long, RemoteHost> index;
+	
+	
+	/**
+	 * Set the index
+	 * 
+	 * @param index The index that map each process id to the corresponding url
+	 */
+	public void setIndex(Map<Long, RemoteHost> index){
+		this.index = index;
+	}
 	
 	/**
 	 * Register a receiving object for message that are sent to us
@@ -27,11 +46,22 @@ public class Connector {
 	 * 
 	 * @param toProcess The id of the process to send to
 	 * @param message The message to send
+	 * @throws NotBoundException 
+	 * @throws RemoteException 
+	 * @throws MalformedURLException 
 	 */
-	public void send(long toProcess, GenericMessage message){
-		// TODO Update scalar Clock
-		// TODO Add new clock value to message
-		// TODO Send over RMI to id
+	public void send(long toProcess, GenericMessage message) throws MalformedURLException, RemoteException, NotBoundException{
+		// Update scalar Clock
+		scalarClock++;
+		
+		// Add new clock value to message
+		message.setTimestamp(scalarClock);
+		
+		// Send over RMI to id
+		RemoteHost rh = this.index.get(toProcess);
+		String remoteUrl = rh.getURL(objectName);
+		IRMIConnector remoteReceiver = (IRMIConnector) java.rmi.Naming.lookup(remoteUrl);
+		remoteReceiver.receive(id, message);
 	}
 	
 	/**
@@ -41,8 +71,15 @@ public class Connector {
 	 * @param message The message that is received
 	 */
 	public void receive(long fromProcess, GenericMessage message){
-		// TODO Update scalar clock
-		// TODO Add new clock value to message
-		// TODO Delegate message to listener
+		// Update scalar clock
+		if ( this.scalarClock < message.getTimestamp() )
+			this.scalarClock = message.getTimestamp();
+		this.scalarClock++;
+		
+		// Add new clock value to message
+		message.setTimestamp(scalarClock);
+		
+		// Delegate message to listener
+		this.gmListener.receive(message, fromProcess);
 	}
 }

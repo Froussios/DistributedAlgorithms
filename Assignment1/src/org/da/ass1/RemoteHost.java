@@ -30,4 +30,8 @@ public class RemoteHost {
 		return objport;
 	}
 	
+	public String getURL(String objectName) {
+		return "rmi://" + getIp() + ":" + getObjport() + "/" + objectName;
+	}
+	
 }

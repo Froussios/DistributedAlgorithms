@@ -7,5 +7,5 @@ import org.da.ass1.messages.*;
 public interface IRMIConnector
 	extends Remote
 {
-	public void receive(GenericMessage message) throws java.rmi.RemoteException;
+	public void receive(long sender, GenericMessage message) throws java.rmi.RemoteException;
 }
