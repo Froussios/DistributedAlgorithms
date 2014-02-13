@@ -1,6 +1,7 @@
 package org.da.ass1;
 
 import java.net.MalformedURLException;
+import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.Map;
@@ -21,6 +22,9 @@ public class Connector {
 	
 	private Map<Long, RemoteHost> index;
 	
+	public Connector(RemoteHost local) throws RemoteException, MalformedURLException, AlreadyBoundException {
+		IRMIConnector rmiConnector = new RMIReceiver(local.getURL(objectName), this);
+	}
 	
 	/**
 	 * Set the index

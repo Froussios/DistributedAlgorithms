@@ -30,7 +30,7 @@ public class RMIReceiver
 	 * @throws MalformedURLException url parameter is malformed
 	 * @throws AlreadyBoundException url location is already used
 	 */
-	protected RMIReceiver(String urlname, Connector connector) throws RemoteException, MalformedURLException, AlreadyBoundException
+	public RMIReceiver(String urlname, Connector connector) throws RemoteException, MalformedURLException, AlreadyBoundException
 	{
 		super();
 		
