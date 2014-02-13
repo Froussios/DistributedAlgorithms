@@ -18,6 +18,8 @@ public class TotalOrder implements GenericMessageListener{
 	private final Connector connector;
 	private final long myId;
 	
+	private long scalarClock;
+	
 	private Set<Long> allIds;
 	private PriorityQueue<Message> queue;
 	
@@ -31,8 +33,26 @@ public class TotalOrder implements GenericMessageListener{
 		this.acknowledged = new HashMap<Long, List<Long>>();
 	}
 	
-	public void send(Message m, long toProcess) throws MalformedURLException, RemoteException, NotBoundException{
-		//connector.send(toProcess, m);
+	/**
+	 * Broadcasts the message
+	 * @param message The message to be broadcasted
+	 * @throws MalformedURLException 
+	 * @throws RemoteException
+	 * @throws NotBoundException
+	 */
+	public void broadcast(Message message) throws MalformedURLException, RemoteException, NotBoundException{
+		// Update scalar Clock
+		scalarClock++;
+		
+		// Add new clock value to message
+		message.setTimestamp(scalarClock);
+		
+		// Send to each process
+		for ( Long id : allIds )
+			connector.send(id, message);
+		
+		// Add list for acknowledgements
+		this.acknowledged.put(scalarClock, new ArrayList<Long>(this.allIds.size()));
 	}
 	
 	public void receiveMessage(Message m, long fromProcess){
