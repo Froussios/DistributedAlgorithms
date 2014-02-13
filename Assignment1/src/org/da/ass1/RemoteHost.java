@@ -30,7 +30,4 @@ public class RemoteHost {
 		return objport;
 	}
 	
-	public boolean isMe() {
-		return "ME".equals(ip);
-	}
 }
