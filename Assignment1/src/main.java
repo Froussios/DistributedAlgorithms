@@ -23,7 +23,16 @@ public class main implements GenericMessageListener{
 		Connector c = new Connector();
 		c.subscribe(new main());
 		
+		System.out.println("INITIALIZING REMOTE INVOCATION AND SLEEPING FOR 5 SECONDS");
 		c.send(1, new Message());
+		
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("SHUTTING DOWN");
 	}
 
 	@Override
