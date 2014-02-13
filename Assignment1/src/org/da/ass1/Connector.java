@@ -14,7 +14,7 @@ public class Connector {
 
 	private static String objectName = "DA-MessageReceiver";
 	
-	private long scalarClock;
+	//private long scalarClock;
 	
 	private GenericMessageListener gmListener;
 	
@@ -55,11 +55,11 @@ public class Connector {
 	 * @throws MalformedURLException 
 	 */
 	public synchronized void send(long toProcess, GenericMessage message) throws MalformedURLException, RemoteException, NotBoundException{
-		// Update scalar Clock
-		scalarClock++;
-		
-		// Add new clock value to message
-		message.setTimestamp(scalarClock);
+//		// Update scalar Clock
+//		scalarClock++;
+//		
+//		// Add new clock value to message
+//		message.setTimestamp(scalarClock);
 		
 		// Send over RMI to id
 		RemoteHost rh = this.index.get(toProcess);
@@ -75,13 +75,13 @@ public class Connector {
 	 * @param message The message that is received
 	 */
 	public void receive(long fromProcess, GenericMessage message){
-		// Update scalar clock
-		if ( this.scalarClock < message.getTimestamp() )
-			this.scalarClock = message.getTimestamp();
-		this.scalarClock++;
-		
-		// Add new clock value to message
-		message.setTimestamp(scalarClock);
+//		// Update scalar clock
+//		if ( this.scalarClock < message.getTimestamp() )
+//			this.scalarClock = message.getTimestamp();
+//		this.scalarClock++;
+//		
+//		// Add new clock value to message
+//		message.setTimestamp(scalarClock);
 		
 		// Delegate message to listener
 		this.gmListener.receive(message, fromProcess);

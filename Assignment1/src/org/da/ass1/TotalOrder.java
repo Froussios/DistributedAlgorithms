@@ -83,6 +83,14 @@ public class TotalOrder implements GenericMessageListener{
 	
 	@Override
 	public void receive(GenericMessage gm, long fromProcess) {
+		// Update scalar clock
+		if ( this.scalarClock < gm.getTimestamp() )
+			this.scalarClock = gm.getTimestamp();
+		this.scalarClock++;
+		
+		// Add new clock value to message
+		gm.setTimestamp(scalarClock);
+		
 		if (gm instanceof Message){
 			receiveMessage((Message) gm, fromProcess);
 		} else if (gm instanceof Acknowledgement){
