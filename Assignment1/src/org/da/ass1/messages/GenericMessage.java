@@ -7,7 +7,7 @@ import java.io.Serializable;
  * using RMI
  *
  */
-public abstract class GenericMessage implements Serializable{
+public abstract class GenericMessage implements Serializable, Comparable<GenericMessage>{
 
 	private static final long serialVersionUID = 1L;
 	
@@ -29,6 +29,11 @@ public abstract class GenericMessage implements Serializable{
 	 */
 	public long getTimestamp(){
 		return this.timestamp;
+	}
+	
+	@Override
+    public int compareTo(GenericMessage other) {
+		return Long.compare(this.timestamp, other.timestamp);
 	}
 	
 }
