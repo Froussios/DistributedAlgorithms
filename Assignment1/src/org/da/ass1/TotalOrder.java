@@ -56,7 +56,8 @@ public class TotalOrder implements GenericMessageListener{
 	}
 	
 	public void receiveMessage(Message m, long fromProcess){
-		
+		// TODO Push to end of the queue (automaticly done by PriorityQueue.add() )
+		// TODO Send acks to everyone else
 	}
 	
 	public synchronized void receiveAcknowledgement(Acknowledgement a, long fromProcess){
