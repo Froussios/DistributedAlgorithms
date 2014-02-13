@@ -24,4 +24,8 @@ public class Message extends GenericMessage{
 		this.payload = payload;
 	}
 	
+	public String toString() {
+		return this.payload;
+	}
+	
 }

@@ -1,4 +1,4 @@
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
@@ -32,6 +32,29 @@ public class main implements GenericMessageListener{
 		Connector c = new Connector(me);
 		c.setIndex(hosts);
 		c.subscribe(new main());
+		
+		
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		while (true)
+		{
+			
+			try {
+				System.out.print(" > ");
+				String line = br.readLine();
+				
+				if (line.toLowerCase().equals("exit"))
+					break;
+				
+				Long to = Long.parseLong(line.split(" ")[0]);
+				GenericMessage message = new Message(line);
+				
+				c.send(to, message);
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 		System.out.println("INITIALIZING REMOTE INVOCATION AND SLEEPING FOR 5 SECONDS");
 		c.send(1, new Message());
