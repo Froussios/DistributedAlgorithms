@@ -54,7 +54,7 @@ public class Connector {
 	 * @throws RemoteException 
 	 * @throws MalformedURLException 
 	 */
-	public void send(long toProcess, GenericMessage message) throws MalformedURLException, RemoteException, NotBoundException{
+	public synchronized void send(long toProcess, GenericMessage message) throws MalformedURLException, RemoteException, NotBoundException{
 		// Update scalar Clock
 		scalarClock++;
 		
