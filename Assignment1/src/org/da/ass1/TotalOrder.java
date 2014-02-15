@@ -98,7 +98,7 @@ public class TotalOrder implements GenericMessageListener{
 	}
 	
 	@Override
-	public void receive(GenericMessage gm, long fromProcess) {
+	public void receive(GenericMessage gm, long fromProcess) throws MalformedURLException, RemoteException, NotBoundException {
 		// Update scalar clock
 		if ( this.scalarClock < gm.getTimestamp() )
 			this.scalarClock = gm.getTimestamp();
