@@ -73,8 +73,11 @@ public class Connector {
 	 * 
 	 * @param fromProcess The process the message was received from
 	 * @param message The message that is received
+	 * @throws NotBoundException 
+	 * @throws RemoteException 
+	 * @throws MalformedURLException 
 	 */
-	public void receive(long fromProcess, GenericMessage message){
+	public void receive(long fromProcess, GenericMessage message) throws MalformedURLException, RemoteException, NotBoundException{
 //		// Update scalar clock
 //		if ( this.scalarClock < message.getTimestamp() )
 //			this.scalarClock = message.getTimestamp();
