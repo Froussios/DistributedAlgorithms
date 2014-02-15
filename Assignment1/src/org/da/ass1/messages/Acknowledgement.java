@@ -6,7 +6,7 @@ package org.da.ass1.messages;
  */
 public class Acknowledgement extends GenericMessage{
 
-	private long acknowledging;
+	private MessageID acknowledging;
 	
 	/**
 	 * The scalar clock id of the Message to 
@@ -14,11 +14,11 @@ public class Acknowledgement extends GenericMessage{
 	 * 
 	 * @param timestamp The timestamp we are acknowledging
 	 */
-	public Acknowledgement(long timestamp){
-		acknowledging = timestamp;
+	public Acknowledgement(MessageID inAcknowledging){
+		this.acknowledging = inAcknowledging;
 	}
 	
-	public long getAckOf(){
+	public MessageID getAckOf(){
 		return acknowledging;
 	}
 }

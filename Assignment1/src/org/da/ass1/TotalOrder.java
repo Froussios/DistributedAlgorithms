@@ -23,7 +23,7 @@ public class TotalOrder implements GenericMessageListener{
 	private Set<Long> allIds;
 	private PriorityQueue<Message> queue;
 	
-	private HashMap<Long, List<Long>> acknowledged; // A map of acknowledgements of message ids coupled to a list of process ids that still need to acknowledge this message
+	private HashMap<GenericMessage.MessageID, List<Long>> acknowledged; // A map of acknowledgements of message ids coupled to a list of process ids that still need to acknowledge this message
 	
 	private TotalOrderListener listener;
 	
@@ -32,7 +32,7 @@ public class TotalOrder implements GenericMessageListener{
 		this.myId = myId;
 		this.queue = new PriorityQueue<Message>();
 		this.allIds = allIds;
-		this.acknowledged = new HashMap<Long, List<Long>>();
+		this.acknowledged = new HashMap<GenericMessage.MessageID, List<Long>>();
 		this.listener = listener;
 	}
 	
@@ -54,12 +54,16 @@ public class TotalOrder implements GenericMessageListener{
 		// Add new clock value to message
 		message.setTimestamp(scalarClock);
 		
+		// Set the id of the message
+		GenericMessage.MessageID messageId = new GenericMessage.MessageID(myId, scalarClock);
+		message.setID(messageId);
+		
 		// Send to each process
 		for ( Long id : allIds )
 			connector.send(id, message);
 		
 		// Add list for acknowledgements
-		this.acknowledged.put(scalarClock, new ArrayList<Long>(this.allIds.size()));
+		this.acknowledged.put(messageId, new ArrayList<Long>(this.allIds.size()));
 	}
 	
 	public void receiveMessage(Message m, long fromProcess) throws MalformedURLException, RemoteException, NotBoundException{
@@ -67,13 +71,13 @@ public class TotalOrder implements GenericMessageListener{
 		queue.add(m);
 		
 		// Send acks to everyone else
-		long messageId = m.getTimestamp(); // TODO Is this timestamp the one EVERYONE has for this message?
+		GenericMessage.MessageID messageId = m.getID(); // TODO Is this timestamp the one EVERYONE has for this message?
 		for (Long id : this.allIds)
 			connector.send(id, new Acknowledgement(messageId));
 	}
 	
 	public synchronized void receiveAcknowledgement(Acknowledgement a, long fromProcess){
-		long msgid = a.getAckOf(); // The timestamp of the message we need to acknowledge
+		GenericMessage.MessageID msgid = a.getAckOf(); // The timestamp of the message we need to acknowledge
 		if (!acknowledged.containsKey(msgid)){
 			ArrayList<Long> racks = new ArrayList<Long>();
 			for (Long l : allIds){
