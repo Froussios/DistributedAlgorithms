@@ -46,8 +46,10 @@ public class RMIReceiver
 	 * @param caller The id of the process sending the message
 	 * @param message The message to be sent
 	 * @throws RemoteException
+	 * @throws NotBoundException 
+	 * @throws MalformedURLException 
 	 */
-	public void receive(long caller, GenericMessage message) throws RemoteException 
+	public void receive(long caller, GenericMessage message) throws RemoteException, MalformedURLException, NotBoundException 
 	{
 		connector.receive(caller, message);
 	}
