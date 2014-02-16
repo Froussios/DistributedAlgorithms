@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.da.ass1.messages.Acknowledgement;
 import org.da.ass1.messages.GenericMessage;
+import org.da.ass1.messages.GenericMessage.MessageID;
 import org.da.ass1.messages.Message;
 
 public class TotalOrder implements GenericMessageListener{
@@ -34,6 +35,8 @@ public class TotalOrder implements GenericMessageListener{
 		this.allIds = allIds;
 		this.acknowledged = new HashMap<GenericMessage.MessageID, List<Long>>();
 		this.listener = listener;
+		
+		connector.subscribe(this);
 	}
 	
 	private void setListener(TotalOrderListener inListener) {
@@ -61,19 +64,20 @@ public class TotalOrder implements GenericMessageListener{
 		// Send to each process
 		for ( Long id : allIds )
 			connector.send(id, message);
-		
-		// Add list for acknowledgements
-		this.acknowledged.put(messageId, new ArrayList<Long>(this.allIds.size()));
 	}
 	
 	public void receiveMessage(Message m, long fromProcess) throws MalformedURLException, RemoteException, NotBoundException{
-		// Push to end of the queue (automaticly done by PriorityQueue.add() )
+		// Push to end of the queue (automatically done by PriorityQueue.add() )
 		queue.add(m);
 		
 		// Send acks to everyone else
 		GenericMessage.MessageID messageId = m.getID(); // TODO Is this timestamp the one EVERYONE has for this message?
-		for (Long id : this.allIds)
-			connector.send(id, new Acknowledgement(messageId));
+		for (Long id : this.allIds){
+			if (id != myId)
+				connector.send(id, new Acknowledgement(messageId));
+			else
+				receiveAcknowledgement(new Acknowledgement(messageId), id);
+		}
 	}
 	
 	public synchronized void receiveAcknowledgement(Acknowledgement a, long fromProcess){
@@ -83,13 +87,14 @@ public class TotalOrder implements GenericMessageListener{
 			for (Long l : allIds){
 				racks.add(l);
 			}
+			acknowledged.put(msgid, racks);
 		}
 		List<Long> acks = acknowledged.get(msgid);
 		acks.remove(fromProcess);
 		if (acks.isEmpty()){
 			// Everyone acknowledged, start popping from the front of the queue
 			while (!queue.isEmpty()){
-				long msg = queue.peek().getTimestamp();
+				MessageID msg = queue.peek().getID();
 				if (acknowledged.get(msg).isEmpty()) {
 					// Deliver message
 					Message m = queue.remove();

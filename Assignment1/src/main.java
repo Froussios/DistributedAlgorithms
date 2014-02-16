@@ -5,12 +5,24 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.Map;
 
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
 import org.da.ass1.*;
 import org.da.ass1.messages.*;
 
 
-public class main implements GenericMessageListener, TotalOrderListener{
+public class main implements TotalOrderListener{
 
+	private long myId = -1;
+	
+	public main(long id){
+		myId = id;
+	}
+	
 	/**
 	 * @param args
 	 * @throws FileNotFoundException 
@@ -25,10 +37,12 @@ public class main implements GenericMessageListener, TotalOrderListener{
 		RemoteHost me = hosts.get(ourid);
 		java.rmi.registry.LocateRegistry.createRegistry(me.getRegport());
 		
+		main listener = new main(me.getId());
+		
 		Connector c = new Connector(me);
 		c.setIndex(hosts);
-		c.subscribe(new main());
-		
+
+		TotalOrder torder = new TotalOrder(c, me.getId(), hosts.keySet(), listener);
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		while (true)
@@ -40,43 +54,37 @@ public class main implements GenericMessageListener, TotalOrderListener{
 				
 				if (line.toLowerCase().equals("exit"))
 					break;
-				
-				Long to = Long.parseLong(line.split(" ")[0]);
-				GenericMessage message = new Message(line);
-				
-				c.send(to, message);
+
+				Message message = new Message(line);
+
+				torder.broadcast(message);
 				
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		
-		System.out.println("INITIALIZING REMOTE INVOCATION AND SLEEPING FOR 5 SECONDS");
-		c.send(1, new Message());
-		
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
 		System.out.println("SHUTTING DOWN");
+		System.exit(0);
 	}
 
 	@Override
-	public void receive(GenericMessage gm, long fromProcess) {
-		System.out.println("RECEIVED GENERIC MESSAGE " + gm.toString());
-	}
+	public void deliverMessage(final Message message) {
+		SwingUtilities.invokeLater(new Runnable(){
+			@Override
+			public void run() {
+				JFrame frame = new JFrame("Process " + myId + " | Message Delivery");
+				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-	@Override
-	public long getProcessId() {
-		return 1;
-	}
-
-	@Override
-	public void deliverMessage(Message message) {
-		// TODO Handle messages here		
+				frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.PAGE_AXIS));
+				frame.getContentPane().add(new JLabel("You ("+myId+") got the following message delivered from " + message.getID().getBroadcaster() + ":"));
+				frame.getContentPane().add(new JLabel(" "));
+				frame.getContentPane().add(new JLabel("<html><font color='red'>" + message.toString() + "</font></html>"));
+				
+				frame.pack();
+				frame.setVisible(true);
+			}
+		});
 	}
 
 }

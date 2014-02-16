@@ -16,8 +16,10 @@ public abstract class GenericMessage implements Serializable, Comparable<Generic
 	 * @author Chris
 	 *
 	 */
-	public static class MessageID
+	public static class MessageID implements Serializable
 	{
+		private static final long serialVersionUID = 1L;
+		
 		private long process;
 		private long timeSent;
 		
@@ -40,6 +42,11 @@ public abstract class GenericMessage implements Serializable, Comparable<Generic
 			else
 				return false;
 		}
+		@Override
+		public int hashCode() {
+			return ((int) process)<<16+timeSent;
+		}
+
 	}
 	
 	
