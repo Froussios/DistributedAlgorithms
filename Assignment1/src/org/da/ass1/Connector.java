@@ -13,6 +13,12 @@ import org.da.ass1.messages.Acknowledgement;
 import org.da.ass1.messages.GenericMessage;
 import org.da.ass1.connector.*;
 
+/**
+ * An object that sends and receives messages within a group of processes.
+ * 
+ * @author Chris
+ *
+ */
 public class Connector {
 
 	private static String objectName = "DA-MessageReceiver";
