@@ -41,7 +41,7 @@ public class main implements TotalOrderListener{
 		RemoteHost me = hosts.get(ourid);
 		
 		
-		Registry reg = java.rmi.registry.LocateRegistry.createRegistry(me.getRegport());
+		 java.rmi.registry.Registry reg = java.rmi.registry.LocateRegistry.createRegistry(me.getRegport());
 		
 		try
 		{
@@ -89,7 +89,7 @@ public class main implements TotalOrderListener{
 		}
 		finally
 		{
-			UnicastRemoteObject.unexportObject(reg,true);
+			java.rmi.server.UnicastRemoteObject.unexportObject(reg,true);
 			System.out.println("SHUTTING DOWN");
 			System.exit(0);
 		}
