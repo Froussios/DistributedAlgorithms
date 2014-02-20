@@ -8,32 +8,48 @@ import java.util.Map;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.da.ass1.*;
 import org.da.ass1.messages.*;
 
-
+/**
+ * The main entrypoint for the jar files
+ */
 public class main implements TotalOrderListener{
 
+	/**
+	 * The id of the running process
+	 */
 	private long myId = -1;
+	
+	/**
+	 * Running in (silent) automated test mode
+	 */
 	public boolean testing = false;
 	
+	/**
+	 * Initialize ourselves with a certain id
+	 * 
+	 * @param id The id to initialize with
+	 */
 	public main(long id){
 		myId = id;
 	}
 	
 	/**
-	 * args[0] : our process id
-	 * args[1] : (if supplied) testing, "silent" does nothing otherwise send a the broadcast message
+	 * The main entrypoint
 	 * 
-	 * @param args
-	 * @throws FileNotFoundException 
-	 * @throws NotBoundException 
-	 * @throws RemoteException 
-	 * @throws MalformedURLException 
-	 * @throws AlreadyBoundException 
+	 * args[0] : our process id
+	 * args[1] : (if supplied) testing, "silent" does nothing otherwise send the arg as a broadcast message
+	 * args[i] : sends the i'th broadcast message (iff arg[1] does not specify silent)
+	 * 
+	 * @param args The command line arguments by which we are instructed to run a test (or not)
+	 * @throws FileNotFoundException  If the config file cannot be found
+	 * @throws NotBoundException If we cannot bind to our port
+	 * @throws RemoteException If a remote exception occurs
+	 * @throws MalformedURLException If a bad ip was specified in the config file
+	 * @throws AlreadyBoundException If we are rebinding a port
 	 */
 	public static void main(String[] args) throws FileNotFoundException, MalformedURLException, RemoteException, NotBoundException, AlreadyBoundException {
 		Long ourid = Long.parseLong(args[0]);
@@ -45,6 +61,9 @@ public class main implements TotalOrderListener{
 		
 		try
 		{
+			/*
+			 * Set up all classes 
+			 */
 			main listener = new main(me.getId());
 			listener.testing = args.length > 1;
 			
@@ -53,6 +72,10 @@ public class main implements TotalOrderListener{
 	
 			TotalOrder torder = new TotalOrder(c, me.getId(), hosts.keySet(), listener);
 			
+			/*
+			 * If not in testing mode launch the consule UI
+			 * Otherwise execute the testing as instructed by the arguments
+			 */
 			if (!listener.testing){
 				BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 				while (true)
@@ -77,16 +100,22 @@ public class main implements TotalOrderListener{
 				
 				if (!"silent".equals(args[1])){
 					try {
-						Thread.sleep(500);
+						Thread.sleep(500); // Wait for all processes to start running
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
+					/*
+					 * Sequentially start broadcasting all our instructed messages
+					 */
 					for (int i = 1; i < args.length; i++){
 						Message message = new Message(args[i]);
 						torder.broadcast(message);
 					}
 				}
 				
+				/*
+				 * Wait for everyone to finish 
+				 */
 				try {
 					Thread.sleep(10000);
 				} catch (InterruptedException e) {
@@ -96,6 +125,9 @@ public class main implements TotalOrderListener{
 		}
 		finally
 		{
+			/*
+			 * Release our port
+			 */
 			java.rmi.server.UnicastRemoteObject.unexportObject(reg,true);
 			System.out.println("SHUTTING DOWN");
 			System.exit(0);
@@ -103,6 +135,11 @@ public class main implements TotalOrderListener{
 	}
 
 	@Override
+	/**
+	 * Callback for when a message is delivered.
+	 * If we are in interactive UI mode, show a pretty frame with a 
+	 * colorized message.
+	 */
 	public void deliverMessage(final Message message) {
 		if (!testing)
 		SwingUtilities.invokeLater(new Runnable(){

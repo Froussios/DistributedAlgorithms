@@ -23,15 +23,41 @@ public abstract class GenericMessage implements Serializable, Comparable<Generic
 		private long process;
 		private long timeSent;
 		
-		public long getBroadcaster() { return this.process; }
-		public long getBroadcasterTime() { return this.timeSent; }
+		/**
+		 * Retrieve the broadcaster that sent this message
+		 * 
+		 * @return The id of the broadcaster
+		 */
+		public long getBroadcaster() { 
+			return this.process; 
+		}
 		
+		/**
+		 * Retrieve the broadcasters scalar clock value
+		 * 
+		 * @return The scalar timestamp for the message
+		 */
+		public long getBroadcasterTime() { 
+			return this.timeSent; 
+		}
+		
+		/**
+		 * Construct a MessageID for a certain broadcaster and
+		 * scalar timestamp
+		 * 
+		 * @param inBroadcaster The broadcaster's id
+		 * @param inBroadcasterTime The broadcaster's scalar timestamp
+		 */
 		public MessageID(long inBroadcaster, long inBroadcasterTime) {
 			this.process = inBroadcaster;
 			this.timeSent = inBroadcasterTime;
 		}
 		
 		@Override
+		/**
+		 * An MessageID equals another object if it has the 
+		 * same broadcaster id and broadcaster timestamp
+		 */
 		public boolean equals(Object obj)	{
 			if ( obj instanceof MessageID )
 			{
@@ -97,7 +123,9 @@ public abstract class GenericMessage implements Serializable, Comparable<Generic
 		return this.id;
 	}
 	
-	//@Override
+	/**
+	 * Order on timestamp value
+	 */
     public int compareTo(GenericMessage other) {
 		return Long.compare(this.timestamp, other.timestamp);
 	}

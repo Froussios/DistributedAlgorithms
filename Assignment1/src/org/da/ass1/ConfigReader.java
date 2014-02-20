@@ -12,6 +12,12 @@ import java.util.Scanner;
  */
 public class ConfigReader {
 
+	/**
+	 * Reads a config.txt and transforms it into a map of process ids and RemoteHosts
+	 * 
+	 * @return A map of process ids for RemoteHosts
+	 * @throws FileNotFoundException IF config.txt could not be found
+	 */
 	public Map<Long, RemoteHost> read() throws FileNotFoundException{
 		HashMap<Long, RemoteHost> map = new HashMap<Long, RemoteHost>();
 		File f = new File("config.txt");
@@ -24,6 +30,8 @@ public class ConfigReader {
 			
 			map.put(id, new RemoteHost(id, ip, regport));
 		}
+		
+		sc.close();
 		
 		return map;
 	}

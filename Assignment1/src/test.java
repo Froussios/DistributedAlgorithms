@@ -11,6 +11,10 @@ public class test {
 
 	private static String testing = "";
 	
+	/**
+	 * Test multiple processes sending multiple broadcast messages concurrently and view them arriving in order
+	 * for each process
+	 */
 	public static void testConcurrentMultipleBroadcast() throws FileNotFoundException, MalformedURLException, RemoteException, NotBoundException, AlreadyBoundException{
 		testing = "testConcurrentMultipleBroadcast";
 		invokeJar("1", "1Hello World!", "1Hello 2 World!", "1Hello 3 World!");
@@ -26,6 +30,9 @@ public class test {
 
 	}
 	
+	/**
+	 * Test multiple processes sending broadcast messages concurrently
+	 */
 	public static void testConcurrentBroadcast() throws FileNotFoundException, MalformedURLException, RemoteException, NotBoundException, AlreadyBoundException{
 		testing = "testConcurrentBroadcast";
 		invokeJar("1", "Hello World!");
@@ -41,6 +48,9 @@ public class test {
 
 	}
 	
+	/**
+	 * Test a process sending multiple broadcast messages and view them arriving in order
+	 */
 	public static void testMultipleBroadcast() throws FileNotFoundException, MalformedURLException, RemoteException, NotBoundException, AlreadyBoundException{
 		testing = "testMultipleBroadcast";
 		invokeJar("1", "silent");
@@ -56,6 +66,11 @@ public class test {
 
 	}
 	
+	/**
+	 * Invoke a the Assignment1.jar with certain command line arguments
+	 * 
+	 * @param args The command line arguments
+	 */
 	private static void invokeJar(final String... args){
 		Thread t = new Thread(new Runnable(){
 
@@ -89,8 +104,14 @@ public class test {
 		t.start();
 	}
 	
+	/**
+	 * Run a test.
+	 * Commented out from bad to worse.
+	 */
 	public static void main(String[] args){
 		try {
+			//testConcurrentBroadcast();
+			//testMultipleBroadcast();
 			testConcurrentMultipleBroadcast();
 		} catch (Exception e) {
 			System.err.println(testing + " failed with exception:");

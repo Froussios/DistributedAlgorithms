@@ -6,6 +6,8 @@ package org.da.ass1.messages;
  */
 public class Message extends GenericMessage{
 
+	private static final long serialVersionUID = 1L;
+	
 	private String payload;
 	
 	/**
@@ -24,6 +26,9 @@ public class Message extends GenericMessage{
 		this.payload = payload;
 	}
 	
+	/**
+	 * Return the payload as the string representation
+	 */
 	public String toString() {
 		return this.payload;
 	}
