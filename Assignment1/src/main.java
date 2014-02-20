@@ -39,57 +39,48 @@ public class main implements TotalOrderListener{
 		Long ourid = Long.parseLong(args[0]);
 		Map<Long, RemoteHost> hosts = new ConfigReader().read();
 		RemoteHost me = hosts.get(ourid);
+		java.rmi.registry.LocateRegistry.createRegistry(me.getRegport());
 		
-		// Create registry
-		Registry reg = java.rmi.registry.LocateRegistry.createRegistry(me.getRegport());
+		main listener = new main(me.getId());
+		listener.testing = args.length > 1;
 		
-		try
-		{
-			main listener = new main(me.getId());
-			listener.testing = args.length > 1;
-			
-			Connector c = new Connector(me);
-			c.setIndex(hosts);
-	
-			TotalOrder torder = new TotalOrder(c, me.getId(), hosts.keySet(), listener);
-			
-			if (!listener.testing){
-				BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-				while (true)
-				{
-					
-					try {
-						System.out.print(" > ");
-						String line = br.readLine();
-						
-						if (line.toLowerCase().equals("exit"))
-							break;
+		Connector c = new Connector(me);
+		c.setIndex(hosts);
+
+		TotalOrder torder = new TotalOrder(c, me.getId(), hosts.keySet(), listener);
 		
-						Message message = new Message(line);
-		
-						torder.broadcast(message);
-						
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			} else { 
-				
-				if (!"silent".equals(args[1])){
-					Message message = new Message(args[1]);
-					torder.broadcast(message);
-				}
+		if (!listener.testing){
+			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+			while (true)
+			{
 				
 				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
+					System.out.print(" > ");
+					String line = br.readLine();
+					
+					if (line.toLowerCase().equals("exit"))
+						break;
+	
+					Message message = new Message(line);
+	
+					torder.broadcast(message);
+					
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
-		}
-		finally
-		{
-			UnicastRemoteObject.unexportObject(reg,true); 
+		} else { 
+			
+			if (!"silent".equals(args[1])){
+				Message message = new Message(args[1]);
+				torder.broadcast(message);
+			}
+			
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		System.out.println("SHUTTING DOWN");
