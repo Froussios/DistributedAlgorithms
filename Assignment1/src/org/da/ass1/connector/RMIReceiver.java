@@ -49,9 +49,25 @@ public class RMIReceiver
 	 * @throws NotBoundException 
 	 * @throws MalformedURLException 
 	 */
-	public void receive(long caller, GenericMessage message) throws RemoteException, MalformedURLException, NotBoundException 
+	public void receive(final long caller, final GenericMessage message) throws RemoteException, MalformedURLException, NotBoundException 
 	{
-		connector.receive(caller, message);
+		Thread t = new Thread(new Runnable(){
+
+			@Override
+			public void run() {
+				try {
+					connector.receive(caller, message);
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				} catch (NotBoundException e) {
+					e.printStackTrace();
+				}
+			}
+			
+		});
+		t.start();
 	}
 
 }

@@ -19,7 +19,7 @@ public class test {
 		invokeJar("4", "Hello World!", "Hello 2 World!");
 		
 		try {
-			Thread.sleep(6000);
+			Thread.sleep(11000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

@@ -76,6 +76,11 @@ public class main implements TotalOrderListener{
 			} else { 
 				
 				if (!"silent".equals(args[1])){
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					for (int i = 1; i < args.length; i++){
 						Message message = new Message(args[i]);
 						torder.broadcast(message);
@@ -83,7 +88,7 @@ public class main implements TotalOrderListener{
 				}
 				
 				try {
-					Thread.sleep(5000);
+					Thread.sleep(10000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

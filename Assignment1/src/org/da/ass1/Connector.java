@@ -65,8 +65,8 @@ public class Connector {
 		IRMIConnector remoteReceiver = (IRMIConnector) java.rmi.Naming.lookup(remoteUrl);
 		// Random delay
 		try {
-			if (message instanceof Acknowledgement)
-			Thread.sleep((long) (20));
+			if (id != 4)
+				Thread.sleep((long) (20));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
