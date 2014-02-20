@@ -42,9 +42,15 @@ public abstract class GenericMessage implements Serializable, Comparable<Generic
 			else
 				return false;
 		}
+		
 		@Override
 		public int hashCode() {
 			return ((int) process)<<16+timeSent;
+		}
+		
+		@Override
+		public string toString() {
+			return "[" + getBroadcaster() + ":" + getBroadcasterTime() + "]"
 		}
 
 	}
