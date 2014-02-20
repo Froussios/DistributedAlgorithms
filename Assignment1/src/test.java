@@ -16,10 +16,10 @@ public class test {
 		invokeJar("1", "silent");
 		invokeJar("2", "silent");
 		invokeJar("3", "silent");
-		invokeJar("4", "Hello World!");
+		invokeJar("4", "Hello World!", "Hello 2 World!");
 		
 		try {
-			Thread.sleep(5000);
+			Thread.sleep(6000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

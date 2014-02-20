@@ -9,6 +9,7 @@ import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
+import org.da.ass1.messages.Acknowledgement;
 import org.da.ass1.messages.GenericMessage;
 import org.da.ass1.connector.*;
 
@@ -64,7 +65,8 @@ public class Connector {
 		IRMIConnector remoteReceiver = (IRMIConnector) java.rmi.Naming.lookup(remoteUrl);
 		// Random delay
 		try {
-			Thread.sleep((long) (Math.random()*500));
+			if (message instanceof Acknowledgement)
+			Thread.sleep((long) (20));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
