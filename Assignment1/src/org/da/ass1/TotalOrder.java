@@ -101,6 +101,7 @@ public class TotalOrder implements GenericMessageListener{
 				if (acknowledged.get(msg).isEmpty()) {
 					// Deliver message
 					Message m = queue.remove();
+					connector.log("DELIVERY of message [" + msg.getBroadcaster() + ":" + msg.getBroadcasterTime() + "]");
 					listener.deliverMessage(m);
 				}
 				else

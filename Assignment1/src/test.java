@@ -23,38 +23,39 @@ public class test {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
-		// TODO check output logs
-		
+
 	}
 	
-	private static void invokeJar(final String arg0, final String arg1){
+	private static void invokeJar(final String... args){
 		Thread t = new Thread(new Runnable(){
 
 			@Override
 			public void run() {
 				try {
-					Process p = Runtime.getRuntime().exec("java -jar ass1.jar " + arg0 + " \"" + arg1 + "\"");
+					String command = "java -jar ass1.jar";
+					for (String arg: args)
+						command += " \"" + arg + "\"";
+					Process p = Runtime.getRuntime().exec(command);
 					p.waitFor();
 					InputStream in = p.getInputStream();
-				    InputStream err = p.getErrorStream();
+					InputStream err = p.getErrorStream();
 
-				    byte b[]=new byte[in.available()];
-				    in.read(b,0,b.length);
-				    System.out.println(new String(b));
+					byte b[]=new byte[in.available()];
+					in.read(b,0,b.length);
+					System.out.println(new String(b));
 
-				    byte c[]=new byte[err.available()];
-				    err.read(c,0,c.length);
-				    System.out.println(new String(c));
+					byte c[]=new byte[err.available()];
+					err.read(c,0,c.length);
+					System.out.println(new String(c));
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-			
+
 		});
-		
+
 		t.start();
 	}
 	
