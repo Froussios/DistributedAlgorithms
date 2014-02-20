@@ -73,10 +73,7 @@ public class TotalOrder implements GenericMessageListener{
 		// Send acks to everyone else
 		GenericMessage.MessageID messageId = m.getID(); // TODO Is this timestamp the one EVERYONE has for this message?
 		for (Long id : this.allIds){
-			if (id != myId)
-				connector.send(id, new Acknowledgement(messageId));
-			else
-				receiveAcknowledgement(new Acknowledgement(messageId), id);
+			connector.send(id, new Acknowledgement(messageId));
 		}
 	}
 	
