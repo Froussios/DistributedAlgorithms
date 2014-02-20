@@ -39,6 +39,10 @@ public class TotalOrder implements GenericMessageListener{
 		connector.subscribe(this);
 	}
 	
+	/**
+	 * Set the application level object that will be called for delivered messages
+	 * @param inListener
+	 */
 	private void setListener(TotalOrderListener inListener) {
 		this.listener = inListener;
 	}
@@ -66,6 +70,14 @@ public class TotalOrder implements GenericMessageListener{
 			connector.send(id, message);
 	}
 	
+	/**
+	 * Handle a Message that was received by the {@code Connector} this instance is listening to.
+	 * @param m The message
+	 * @param fromProcess The process the message was received from
+	 * @throws MalformedURLException
+	 * @throws RemoteException
+	 * @throws NotBoundException
+	 */
 	public synchronized void receiveMessage(Message m, long fromProcess) throws MalformedURLException, RemoteException, NotBoundException{
 		// Push to end of the queue (automatically done by PriorityQueue.add() )
 		queue.add(m);
@@ -91,8 +103,16 @@ public class TotalOrder implements GenericMessageListener{
 		}
 	}
 	
+	/**
+	 * Handle an Acknowledgement that was received by the {@code Connector} this instance is listening to.
+	 * @param a The acknowledgement message
+	 * @param fromProcess The process the message was received from
+	 */
 	public synchronized void receiveAcknowledgement(Acknowledgement a, long fromProcess){
 		GenericMessage.MessageID msgid = a.getAckOf(); // The timestamp of the message we need to acknowledge
+		
+		// When receiving an acknowledgement for the first time, for a message that hasn't been received yet,
+		// initialise the list of processes that have acknowledged the message  
 		if (!acknowledged.containsKey(msgid)){
 			ArrayList<Long> racks = new ArrayList<Long>();
 			for (Long l : allIds){
@@ -100,10 +120,13 @@ public class TotalOrder implements GenericMessageListener{
 			}
 			acknowledged.put(msgid, racks);
 		}
+		
+		// Mark the message as having been acknowledged by this process
 		List<Long> acks = acknowledged.get(msgid);
 		acks.remove(fromProcess);
+		
+		// If everyone acknowledged this message, start popping fully acknowledged messages from the queue 
 		if (acks.isEmpty()){
-			// Everyone acknowledged, start popping from the front of the queue
 			while (!queue.isEmpty()){
 				MessageID msg = queue.peek().getID();
 				if (acknowledged.get(msg).isEmpty()) {
@@ -117,6 +140,7 @@ public class TotalOrder implements GenericMessageListener{
 			}
 		}
 	}
+	
 	
 	@Override
 	public void receive(GenericMessage gm, long fromProcess) throws MalformedURLException, RemoteException, NotBoundException {

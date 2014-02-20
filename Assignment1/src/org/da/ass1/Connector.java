@@ -25,6 +25,13 @@ public class Connector {
 	
 	private Semaphore sem = new Semaphore(1);
 	
+	/**
+	 * Instantiate a new Connector that receives GenericMessage intances from RMI
+	 * @param local The RMI address info of the local process
+	 * @throws RemoteException
+	 * @throws MalformedURLException
+	 * @throws AlreadyBoundException
+	 */
 	public Connector(RemoteHost local) throws RemoteException, MalformedURLException, AlreadyBoundException {
 		new RMIReceiver(local.getURL(objectName), this);
 	}
@@ -108,6 +115,9 @@ public class Connector {
 		}
 	}
 	
+	/**
+	 * Clear all the messages in the log file for this process
+	 */
 	private void clearLog(){
 		try {
 			sem.acquire();

@@ -3,7 +3,7 @@ package org.da.ass1;
 import org.da.ass1.messages.*;
 
 /**
- * Users of {@code Total Order} receive messages on an instance that implements this interface.
+ * Users of {@code TotalOrder} receive messages on an instance that implements this interface.
  * 
  * @author Chris
  *
