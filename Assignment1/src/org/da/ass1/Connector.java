@@ -1,10 +1,14 @@
 package org.da.ass1;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
+
 import org.da.ass1.messages.GenericMessage;
 import org.da.ass1.connector.*;
 
@@ -17,6 +21,8 @@ public class Connector {
 	private long id;
 	
 	private Map<Long, RemoteHost> index;
+	
+	private Semaphore sem = new Semaphore(1);
 	
 	public Connector(RemoteHost local) throws RemoteException, MalformedURLException, AlreadyBoundException {
 		new RMIReceiver(local.getURL(objectName), this);
@@ -68,7 +74,28 @@ public class Connector {
 	 * @throws MalformedURLException 
 	 */
 	public void receive(long fromProcess, GenericMessage message) throws MalformedURLException, RemoteException, NotBoundException{
+		// Log reception
+		log("[" + fromProcess + ":" + message.getTimestamp() + "] " + message.toString());
 		// Delegate message to listener
 		this.gmListener.receive(message, fromProcess);
+	}
+	
+	/**
+	 * Write to our receive message log
+	 * 
+	 * @param message The message to write to file
+	 */
+	private void log(String message){
+		try {
+			sem.acquire();
+			FileWriter fw = new FileWriter(id + ".log", true);
+			fw.write(message+"\n");
+			fw.close();
+			sem.release();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }
