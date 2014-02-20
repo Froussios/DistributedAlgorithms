@@ -21,8 +21,4 @@ public class Acknowledgement extends GenericMessage{
 	public MessageID getAckOf(){
 		return acknowledging;
 	}
-	
-	public String toString(){
-		return "ACK(" + acknowledging.getBroadcaster() +":"+ acknowledging.getBroadcasterTime() + ")";
-	}
 }

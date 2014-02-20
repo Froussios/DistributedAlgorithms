@@ -16,25 +16,25 @@ public class test {
 		invokeJar("1", "silent");
 		invokeJar("2", "silent");
 		invokeJar("3", "silent");
-		invokeJar("4", "Hello World!", "Hello World2!");
+		invokeJar("4", "Hello World!");
 		
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		
+		// TODO check output logs
+		
 	}
 	
-	private static void invokeJar(final String... args){
+	private static void invokeJar(final String arg0, final String arg1){
 		Thread t = new Thread(new Runnable(){
 
 			@Override
 			public void run() {
 				try {
-					String command = "java -jar ass1.jar";
-					for (String arg: args)
-						command += " \"" + arg + "\"";
-					Process p = Runtime.getRuntime().exec(command);
+					Process p = Runtime.getRuntime().exec("java -jar ass1.jar " + arg0 + " \"" + arg1 + "\"");
 					p.waitFor();
 					InputStream in = p.getInputStream();
 				    InputStream err = p.getErrorStream();

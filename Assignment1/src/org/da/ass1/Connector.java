@@ -45,7 +45,6 @@ public class Connector {
 	public void subscribe(GenericMessageListener listener){
 		this.gmListener = listener;
 		this.id = listener.getProcessId();
-		clearLog();
 	}
 	
 	/**
@@ -97,20 +96,6 @@ public class Connector {
 			sem.acquire();
 			FileWriter fw = new FileWriter(id + ".log", true);
 			fw.write(message+"\n");
-			fw.close();
-			sem.release();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	private void clearLog(){
-		try {
-			sem.acquire();
-			FileWriter fw = new FileWriter(id + ".log", false);
-			fw.write("");
 			fw.close();
 			sem.release();
 		} catch (IOException e) {
