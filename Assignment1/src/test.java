@@ -11,12 +11,42 @@ public class test {
 
 	private static String testing = "";
 	
-	public static void testSingleBroadcast() throws FileNotFoundException, MalformedURLException, RemoteException, NotBoundException, AlreadyBoundException{
-		testing = "testSingleBroadcast";
+	public static void testConcurrentMultipleBroadcast() throws FileNotFoundException, MalformedURLException, RemoteException, NotBoundException, AlreadyBoundException{
+		testing = "testConcurrentMultipleBroadcast";
+		invokeJar("1", "1Hello World!", "1Hello 2 World!", "1Hello 3 World!");
+		invokeJar("2", "2Hello World!", "2Hello 2 World!", "2Hello 3 World!");
+		invokeJar("3", "3Hello World!", "3Hello 2 World!", "3Hello 3 World!");
+		invokeJar("4", "4Hello World!", "4Hello 2 World!", "4Hello 3 World!");
+		
+		try {
+			Thread.sleep(11000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	public static void testConcurrentBroadcast() throws FileNotFoundException, MalformedURLException, RemoteException, NotBoundException, AlreadyBoundException{
+		testing = "testConcurrentBroadcast";
+		invokeJar("1", "Hello World!");
+		invokeJar("2", "Hello 2 World!");
+		invokeJar("3", "Hello 3 World!");
+		invokeJar("4", "Hello 4 World!");
+		
+		try {
+			Thread.sleep(11000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	public static void testMultipleBroadcast() throws FileNotFoundException, MalformedURLException, RemoteException, NotBoundException, AlreadyBoundException{
+		testing = "testMultipleBroadcast";
 		invokeJar("1", "silent");
 		invokeJar("2", "silent");
 		invokeJar("3", "silent");
-		invokeJar("4", "Hello World!", "Hello 2 World!");
+		invokeJar("4", "Hello World!", "Hello 2 World!", "Hello 3 World!", "Hello 4 World!", "Hello 5 World!", "Hello 6 World!", "Hello 7 World!", "Hello 8 World!", "Hello 9 World!", "Hello 10 World!");
 		
 		try {
 			Thread.sleep(11000);
@@ -61,7 +91,7 @@ public class test {
 	
 	public static void main(String[] args){
 		try {
-			testSingleBroadcast();
+			testConcurrentMultipleBroadcast();
 		} catch (Exception e) {
 			System.err.println(testing + " failed with exception:");
 			e.printStackTrace();

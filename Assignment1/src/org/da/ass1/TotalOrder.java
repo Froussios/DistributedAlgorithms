@@ -66,9 +66,17 @@ public class TotalOrder implements GenericMessageListener{
 			connector.send(id, message);
 	}
 	
-	public void receiveMessage(Message m, long fromProcess) throws MalformedURLException, RemoteException, NotBoundException{
+	public synchronized void receiveMessage(Message m, long fromProcess) throws MalformedURLException, RemoteException, NotBoundException{
 		// Push to end of the queue (automatically done by PriorityQueue.add() )
 		queue.add(m);
+		
+		if (!acknowledged.containsKey(m.getID())){
+			ArrayList<Long> racks = new ArrayList<Long>();
+			for (Long l : allIds){
+				racks.add(l);
+			}
+			acknowledged.put(m.getID(), racks);
+		}
 		
 		// Send acks to everyone else
 		GenericMessage.MessageID messageId = m.getID(); // TODO Is this timestamp the one EVERYONE has for this message?
