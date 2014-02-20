@@ -49,8 +49,8 @@ public abstract class GenericMessage implements Serializable, Comparable<Generic
 		}
 		
 		@Override
-		public string toString() {
-			return "[" + getBroadcaster() + ":" + getBroadcasterTime() + "]"
+		public String toString() {
+			return "[" + getBroadcaster() + ":" + getBroadcasterTime() + "]";
 		}
 
 	}
