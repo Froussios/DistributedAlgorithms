@@ -10,8 +10,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
-import org.da.ass1.*;
-import org.da.ass1.messages.*;
+import org.da.ass2.*;
+import org.da.ass2.messages.*;
 
 /**
  * The main entrypoint for the jar files
@@ -37,6 +37,12 @@ public class main implements TotalOrderListener{
 		myId = id;
 	}
 	
+	public static Map<Long, Collection<RemoteHost>> fromHosts(Map<Long, RemoteHost> hosts){
+		for (RemoteHost host : hosts.values()){
+			host.getGroups();
+		}
+	}
+	
 	/**
 	 * The main entrypoint
 	 * 
@@ -56,6 +62,7 @@ public class main implements TotalOrderListener{
 		Map<Long, RemoteHost> hosts = new ConfigReader().read();
 		RemoteHost me = hosts.get(ourid);
 		
+		Map<Long, Collection<RemoteHost>> requestSets = 
 		
 		 java.rmi.registry.Registry reg = java.rmi.registry.LocateRegistry.createRegistry(me.getRegport());
 		
