@@ -78,6 +78,19 @@ public abstract class GenericMessage implements Serializable, Comparable<Generic
 		public String toString() {
 			return "[" + getBroadcaster() + ":" + getBroadcasterTime() + "]";
 		}
+		
+		/**
+		 * Order on timestamp value
+		 */
+	    public int compareTo(MessageID other) {
+	    	int comp = Long.compare(getBroadcasterTime(), other.getBroadcasterTime());
+			if(comp == 0){
+				long otherb = other.getBroadcaster();
+				return Long.compare(this.getBroadcaster(), otherb);
+			} else {
+				return comp;
+			}
+		}
 
 	}
 	
@@ -127,7 +140,13 @@ public abstract class GenericMessage implements Serializable, Comparable<Generic
 	 * Order on timestamp value
 	 */
     public int compareTo(GenericMessage other) {
-		return Long.compare(this.timestamp, other.timestamp);
+    	int comp = Long.compare(this.timestamp, other.timestamp);
+		if(comp == 0){
+			long otherb = other.getID().getBroadcaster();
+			return Long.compare(this.id.getBroadcaster(), otherb);
+		} else {
+			return comp;
+		}
 	}
 	
 }
