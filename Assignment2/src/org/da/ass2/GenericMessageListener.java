@@ -4,7 +4,7 @@ import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
-import org.da.ass1.messages.GenericMessage;
+import org.da.ass2.messages.GenericMessage;
 
 /**
  * Defines classes that can receive GenericMessages

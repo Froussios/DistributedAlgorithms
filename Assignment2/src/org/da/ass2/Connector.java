@@ -9,9 +9,8 @@ import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
-import org.da.ass1.messages.Acknowledgement;
-import org.da.ass1.messages.GenericMessage;
-import org.da.ass1.connector.*;
+import org.da.ass2.messages.GenericMessage;
+import org.da.ass2.connector.*;
 
 /**
  * An object that sends and receives messages within a group of processes.

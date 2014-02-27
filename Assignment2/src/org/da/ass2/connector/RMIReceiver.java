@@ -4,8 +4,8 @@ import java.net.MalformedURLException;
 import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 
-import org.da.ass1.Connector;
-import org.da.ass1.messages.*;
+import org.da.ass2.Connector;
+import org.da.ass2.messages.*;
 
 
 /**

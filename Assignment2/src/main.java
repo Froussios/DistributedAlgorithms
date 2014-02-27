@@ -3,6 +3,9 @@ import java.net.MalformedURLException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BoxLayout;
@@ -37,10 +40,23 @@ public class main implements TotalOrderListener{
 		myId = id;
 	}
 	
-	public static Map<Long, Collection<RemoteHost>> fromHosts(Map<Long, RemoteHost> hosts){
+	/**
+	 * From a group of hosts construct a group -> hosts mapping
+	 * 
+	 * @param hosts The mapping of hosts
+	 * @return The group -> hosts mapping
+	 */
+	public static Map<Integer, Collection<RemoteHost>> fromHosts(Map<Long, RemoteHost> hosts){
+		Map<Integer, Collection<RemoteHost>> out = new HashMap<Integer, Collection<RemoteHost>>();
 		for (RemoteHost host : hosts.values()){
-			host.getGroups();
+			for (Integer g : host.getGroups()){
+				if (!out.containsKey(g)){
+					out.put(g, new ArrayList<RemoteHost>());
+				}
+				out.get(g).add(host);
+			}
 		}
+		return out;
 	}
 	
 	/**
@@ -62,9 +78,9 @@ public class main implements TotalOrderListener{
 		Map<Long, RemoteHost> hosts = new ConfigReader().read();
 		RemoteHost me = hosts.get(ourid);
 		
-		Map<Long, Collection<RemoteHost>> requestSets = 
+		Map<Integer, Collection<RemoteHost>> requestSets = fromHosts(hosts); 
 		
-		 java.rmi.registry.Registry reg = java.rmi.registry.LocateRegistry.createRegistry(me.getRegport());
+		java.rmi.registry.Registry reg = java.rmi.registry.LocateRegistry.createRegistry(me.getRegport());
 		
 		try
 		{

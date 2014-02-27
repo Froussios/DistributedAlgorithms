@@ -3,7 +3,7 @@ package org.da.ass2.connector;
 import java.net.MalformedURLException;
 import java.rmi.*;
 
-import org.da.ass1.messages.*;
+import org.da.ass2.messages.*;
 
 /**
  * The Remote interface for an RMIConnector

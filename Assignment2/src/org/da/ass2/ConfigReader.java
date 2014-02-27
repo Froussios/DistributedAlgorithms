@@ -2,6 +2,7 @@ package org.da.ass2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -32,7 +33,7 @@ public class ConfigReader {
 			Scanner ssc = new Scanner(rest);
 			ArrayList<Integer> groups = new ArrayList<Integer>();
 			while (ssc.hasNext()){
-				group.add(ssc.nextInt());
+				groups.add(ssc.nextInt());
 			}
 			
 			map.put(id, new RemoteHost(id, ip, regport, groups));
