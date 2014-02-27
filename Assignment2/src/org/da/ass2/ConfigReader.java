@@ -1,4 +1,4 @@
-package org.da.ass1;
+package org.da.ass2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,7 +28,14 @@ public class ConfigReader {
 			String ip = sc.next();
 			int regport = sc.nextInt();
 			
-			map.put(id, new RemoteHost(id, ip, regport));
+			String rest = sc.nextLine();
+			Scanner ssc = new Scanner(rest);
+			ArrayList<Integer> groups = new ArrayList<Integer>();
+			while (ssc.hasNext()){
+				group.add(ssc.nextInt());
+			}
+			
+			map.put(id, new RemoteHost(id, ip, regport, groups));
 		}
 		
 		sc.close();

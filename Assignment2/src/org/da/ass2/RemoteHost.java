@@ -1,4 +1,6 @@
-package org.da.ass1;
+package org.da.ass2;
+
+import java.util.Collection;
 
 /**
  * A container that hold the info that specify a process on the network
@@ -11,6 +13,7 @@ public class RemoteHost {
 	private final long id;
 	private final String ip;
 	private final int regport;
+	private final Collection<Integer> groups;
 
 	/**
 	 * New instance
@@ -18,10 +21,11 @@ public class RemoteHost {
 	 * @param ip The ip of the host
 	 * @param regport The port the host is listening to
 	 */
-	public RemoteHost(long id, String ip, int regport){
+	public RemoteHost(long id, String ip, int regport, Collection<Integer> groups){
 		this.id = id;
 		this.ip = ip;
 		this.regport = regport;
+		this.groups = groups;
 	}
 
 	/**
@@ -57,4 +61,14 @@ public class RemoteHost {
 		return "rmi://" + getIp() + ":" + getRegport() + "/" + objectName;
 	}
 	
+	/**
+	 * Retrieve the groups this RemoteHost belongs to
+	 * 
+	 * @return The Collection of group ids
+	 */
+	public Collection<Integer> getGroups(){
+		return groups;
+	}
+	
 }
+

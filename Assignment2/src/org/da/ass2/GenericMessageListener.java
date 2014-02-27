@@ -1,4 +1,4 @@
-package org.da.ass1;
+package org.da.ass2;
 
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;

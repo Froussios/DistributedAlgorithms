@@ -1,4 +1,4 @@
-package org.da.ass1;
+package org.da.ass2;
 
 import org.da.ass1.messages.*;
 

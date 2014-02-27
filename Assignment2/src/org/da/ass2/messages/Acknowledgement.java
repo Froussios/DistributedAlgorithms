@@ -1,4 +1,4 @@
-package org.da.ass1.messages;
+package org.da.ass2.messages;
 
 /**
  * An ACK for a message

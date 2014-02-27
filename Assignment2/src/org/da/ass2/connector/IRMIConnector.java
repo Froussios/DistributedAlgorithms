@@ -1,4 +1,4 @@
-package org.da.ass1.connector;
+package org.da.ass2.connector;
 
 import java.net.MalformedURLException;
 import java.rmi.*;
