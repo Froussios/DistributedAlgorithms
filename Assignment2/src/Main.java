@@ -6,6 +6,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import javax.swing.BoxLayout;
@@ -43,12 +44,18 @@ public class Main{
 	/**
 	 * We are the main process, deploy all the jars.
 	 * @throws FileNotFoundException 
+	 * @throws InterruptedException 
 	 */
-	public static void deployJars() throws FileNotFoundException{
+	public static void deployJars() throws FileNotFoundException, InterruptedException{
 		Map<Long, RemoteHost> hosts = new ConfigReader().read();
+		LinkedList<Thread> threads = new LinkedList<Thread>();
 		for (Long id : hosts.keySet()){
-			invokeJar("" + id);
+			Thread t = invokeJar("" + id);
+			threads.add(t);
 		}
+		
+		for (Thread t : threads)
+			t.join();
 	}
 	
 	/**
@@ -56,13 +63,13 @@ public class Main{
 	 * 
 	 * @param args The command line arguments
 	 */
-	private static void invokeJar(final String... args){
+	private static Thread invokeJar(final String... args){
 		Thread t = new Thread(new Runnable(){
 
 			@Override
 			public void run() {
 				try {
-					String command = "java -jar ass2.jar";
+					/*String command = "java -jar ass2.jar";
 					for (String arg: args)
 						command += " \"" + arg + "\"";
 					Process p = Runtime.getRuntime().exec(command);
@@ -76,7 +83,16 @@ public class Main{
 
 					byte c[]=new byte[err.available()];
 					err.read(c,0,c.length);
-					System.out.println(new String(c));
+					System.out.println(new String(c));*/
+					try {
+						Main.main(args);
+					} catch (NotBoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (AlreadyBoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (InterruptedException e) {
@@ -87,14 +103,15 @@ public class Main{
 		});
 
 		t.start();
+		return t;
 	}
 	
 	public static void main(String[] args) throws FileNotFoundException, MalformedURLException, RemoteException, NotBoundException, AlreadyBoundException, InterruptedException {
 		//We are the main process that launches the components
 		if (args.length == 0){
 			deployJars();
-			Thread.sleep(8000);
-			return;
+			System.out.println("SHUTTING DOWN");
+			System.exit(0);
 		}
 		//Otherwise we are supposed to start requesting CSs
 		Long ourid = Long.parseLong(args[0]);
@@ -117,7 +134,7 @@ public class Main{
 			Component comp = new Component(connector, me, hosts.keySet(), requestSets);
 			comp.useResources(1);
 			
-			Thread.sleep(4000);
+			Thread.sleep(8000);
 		} catch (Exception e){
 			e.printStackTrace();
 		}
@@ -126,9 +143,8 @@ public class Main{
 			/*
 			 * Release our port
 			 */
+			System.out.println(me.getId() + " stopped listening");
 			java.rmi.server.UnicastRemoteObject.unexportObject(reg,true);
-			System.out.println("SHUTTING DOWN");
-			System.exit(0);
 		}
 	}
 

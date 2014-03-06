@@ -31,7 +31,7 @@ public class Component implements GenericMessageListener {
 	
 	private PriorityQueue<Request> requestQueue;
 	
-	private LinkedList<Long> confirmations = null;
+	private LinkedList<Long> confirmations = new LinkedList<Long>();;
 	private Request granted;
 	private boolean relinquished = false;
 	
@@ -60,14 +60,19 @@ public class Component implements GenericMessageListener {
 		
 		Request sendMe = applyTimestamp(new Request());
 		
-		confirmations = new LinkedList<Long>();
+		
+		synchronized(confirmations){
+			confirmations.clear();
+		}
 
 		for (Integer group : me.getGroups()){
 			Collection<RemoteHost> others = requestSets.get(group);
 			for (RemoteHost other : others){
-				if (!confirmations.contains(other.getId())){
-					confirmations.add(other.getId());
-					connector.send(other.getId(), sendMe);
+				synchronized(confirmations){
+					if (!confirmations.contains(other.getId())){
+						confirmations.add(other.getId());
+						connector.send(other.getId(), sendMe);
+					}
 				}
 			}
 		}
@@ -148,8 +153,10 @@ public class Component implements GenericMessageListener {
 		synchronized(requestQueue){
 			if (!requestQueue.isEmpty() || relinquished){
 				relinquished = true;
-				if (confirmations.contains(fromProcess))
-					confirmations.add(fromProcess);
+				synchronized(confirmations){
+					if (confirmations.contains(fromProcess))
+						confirmations.add(fromProcess);
+				}
 				connector.send(fromProcess, applyTimestamp(new Relinquish()));
 			}
 		}
@@ -205,9 +212,9 @@ public class Component implements GenericMessageListener {
 			Thread.sleep(ms);
 			
 			// Request critical section
-			System.out.println(System.currentTimeMillis() + "" + me.getId() + " requesting CS");
+			System.out.println(System.currentTimeMillis() + " " + me.getId() + " requesting CS");
 			requestCS();
-			System.out.println(System.currentTimeMillis() + "" + me.getId() + " entered CS");
+			System.out.println(System.currentTimeMillis() + " " + me.getId() + " entered CS");
 			
 			// Time working inside the critical section
 			ms = random.nextInt(20)+10;
@@ -215,7 +222,7 @@ public class Component implements GenericMessageListener {
 			
 			// Exit critical section
 			releaseCS();
-			System.out.println(System.currentTimeMillis() + "" + me.getId() + " exited CS");
+			System.out.println(System.currentTimeMillis() + " " + me.getId() + " exited CS");
 		}
 	}
 	

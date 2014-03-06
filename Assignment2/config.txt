@@ -1,6 +1,6 @@
-1 localhost 17099 1 3
-2 localhost 17100 3
-3 localhost 17101 3 2
-4 localhost 17102 1
-5 localhost 17103 2
-6 localhost 17104 1 2
+1 localhost 24099 1 3
+2 localhost 24100 3
+3 localhost 24101 3 2
+4 localhost 24102 1
+5 localhost 24103 2
+6 localhost 24104 1 2
