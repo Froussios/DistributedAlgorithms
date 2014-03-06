@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
@@ -180,6 +181,29 @@ public class Component implements GenericMessageListener {
 	
 	public void receivePostponed(long fromProcess){
 		waitForPostponed.release();
+	}
+	
+	public void useResources(int times) throws MalformedURLException, RemoteException, NotBoundException, InterruptedException{
+		Random random = new Random();
+		
+		for (int i=0; i<times; i++){
+			// Time working outside the crititcal section
+			int ms = random.nextInt(40)+10;
+			Thread.sleep(ms);
+			
+			// Request critical section
+			System.out.println("" + me.getId() + " requesting CS");
+			requestCS();
+			System.out.println("" + me.getId() + " entered CS");
+			
+			// Time working inside the critical section
+			ms = random.nextInt(20)+10;
+			Thread.sleep(ms);
+			
+			// Exit critical section
+			releaseCS();
+			System.out.println("" + me.getId() + " exited CS");
+		}
 	}
 	
 	private <T extends GenericMessage> T applyTimestamp(T gm){
