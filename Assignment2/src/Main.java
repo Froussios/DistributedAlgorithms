@@ -93,6 +93,7 @@ public class Main{
 		//We are the main process that launches the components
 		if (args.length == 0){
 			deployJars();
+			Thread.sleep(8000);
 			return;
 		}
 		//Otherwise we are supposed to start requesting CSs
@@ -106,12 +107,19 @@ public class Main{
 		
 		try
 		{
+			Thread.sleep(2000);
+			
 			/*
 			 * Set up all classes 
 			 */
 			Connector connector = new Connector(me);
+			connector.setIndex(hosts);
 			Component comp = new Component(connector, me, hosts.keySet(), requestSets);
-			comp.useResources(4);
+			comp.useResources(1);
+			
+			Thread.sleep(4000);
+		} catch (Exception e){
+			e.printStackTrace();
 		}
 		finally
 		{

@@ -45,6 +45,8 @@ public class Component implements GenericMessageListener {
 		
 		this.requestQueue = new PriorityQueue<Request>();
 		waitForPostponed.acquire();
+		
+		this.connector.subscribe(this);
 	}
 	
 	/**
@@ -59,12 +61,14 @@ public class Component implements GenericMessageListener {
 		Request sendMe = applyTimestamp(new Request());
 		
 		confirmations = new LinkedList<Long>();
-		
+
 		for (Integer group : me.getGroups()){
 			Collection<RemoteHost> others = requestSets.get(group);
 			for (RemoteHost other : others){
-				confirmations.add(other.getId());
-				connector.send(other.getId(), sendMe);
+				if (!confirmations.contains(other.getId())){
+					confirmations.add(other.getId());
+					connector.send(other.getId(), sendMe);
+				}
 			}
 		}
 		
@@ -88,10 +92,14 @@ public class Component implements GenericMessageListener {
 	public void releaseCS() throws MalformedURLException, RemoteException, NotBoundException{
 		
 		Release sendMe = applyTimestamp(new Release());
+		LinkedList<Long> sentTo = new LinkedList<Long>();
 		
 		for (Integer group : me.getGroups()){
 			Collection<RemoteHost> others = requestSets.get(group);
 			for (RemoteHost other : others){
+				if (sentTo.contains(other.getId()))
+					continue;
+				sentTo.add(other.getId());
 				connector.send(other.getId(), sendMe);
 			}
 		}
@@ -125,7 +133,11 @@ public class Component implements GenericMessageListener {
 	
 	public void receiveGrant(long fromProcess){
 		synchronized(confirmations){
+			connector.log("Stopped waiting for " + fromProcess);
+			for (Long l : confirmations)
+				connector.log("Waited for: " + l);
 			confirmations.remove(fromProcess);
+			connector.log("Still waiting for: " + confirmations.size());
 			if (confirmations.isEmpty())
 				waitForPostponed.release();
 		}
@@ -136,7 +148,8 @@ public class Component implements GenericMessageListener {
 		synchronized(requestQueue){
 			if (!requestQueue.isEmpty() || relinquished){
 				relinquished = true;
-				confirmations.add(fromProcess);
+				if (confirmations.contains(fromProcess))
+					confirmations.add(fromProcess);
 				connector.send(fromProcess, applyTimestamp(new Relinquish()));
 			}
 		}
@@ -171,7 +184,7 @@ public class Component implements GenericMessageListener {
 			} else {
 				requestQueue.add(r);
 				if (requestQueue.peek().equals(r) && granted.compareTo(r)>0){
-					connector.send(fromProcess, applyTimestamp(new Inquire()));
+					connector.send(granted.getID().getBroadcaster(), applyTimestamp(new Inquire()));
 				} else {
 					connector.send(fromProcess, applyTimestamp(new Postponed()));
 				}
@@ -185,16 +198,16 @@ public class Component implements GenericMessageListener {
 	
 	public void useResources(int times) throws MalformedURLException, RemoteException, NotBoundException, InterruptedException{
 		Random random = new Random();
-		
+
 		for (int i=0; i<times; i++){
 			// Time working outside the crititcal section
 			int ms = random.nextInt(40)+10;
 			Thread.sleep(ms);
 			
 			// Request critical section
-			System.out.println("" + me.getId() + " requesting CS");
+			System.out.println(System.currentTimeMillis() + "" + me.getId() + " requesting CS");
 			requestCS();
-			System.out.println("" + me.getId() + " entered CS");
+			System.out.println(System.currentTimeMillis() + "" + me.getId() + " entered CS");
 			
 			// Time working inside the critical section
 			ms = random.nextInt(20)+10;
@@ -202,13 +215,15 @@ public class Component implements GenericMessageListener {
 			
 			// Exit critical section
 			releaseCS();
-			System.out.println("" + me.getId() + " exited CS");
+			System.out.println(System.currentTimeMillis() + "" + me.getId() + " exited CS");
 		}
 	}
 	
 	private <T extends GenericMessage> T applyTimestamp(T gm){
 		scalarClock++;
 		gm.setTimestamp(scalarClock);
+		GenericMessage.MessageID messageId = new GenericMessage.MessageID(me.getId(), scalarClock);
+		gm.setID(messageId);
 		return gm;
 	}
 	
