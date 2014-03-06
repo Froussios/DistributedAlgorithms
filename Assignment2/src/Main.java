@@ -19,7 +19,7 @@ import org.da.ass2.messages.*;
 /**
  * The main entrypoint for the jar files
  */
-public class main implements TotalOrderListener{
+public class Main{
 
 	/**
 	 * The id of the running process
@@ -36,7 +36,7 @@ public class main implements TotalOrderListener{
 	 * 
 	 * @param id The id to initialize with
 	 */
-	public main(long id){
+	public Main(long id){
 		myId = id;
 	}
 	
@@ -87,7 +87,7 @@ public class main implements TotalOrderListener{
 			/*
 			 * Set up all classes 
 			 */
-			main listener = new main(me.getId());
+			Main listener = new Main(me.getId());
 			listener.testing = args.length > 1;
 			
 			Connector c = new Connector(me);
