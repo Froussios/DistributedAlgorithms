@@ -20,25 +20,6 @@ import org.da.ass2.messages.*;
  * The main entrypoint for the jar files
  */
 public class Main{
-
-	/**
-	 * The id of the running process
-	 */
-	private long myId = -1;
-	
-	/**
-	 * Running in (silent) automated test mode
-	 */
-	public boolean testing = false;
-	
-	/**
-	 * Initialize ourselves with a certain id
-	 * 
-	 * @param id The id to initialize with
-	 */
-	public Main(long id){
-		myId = id;
-	}
 	
 	/**
 	 * From a group of hosts construct a group -> hosts mapping
@@ -60,20 +41,61 @@ public class Main{
 	}
 	
 	/**
-	 * The main entrypoint
-	 * 
-	 * args[0] : our process id
-	 * args[1] : (if supplied) testing, "silent" does nothing otherwise send the arg as a broadcast message
-	 * args[i] : sends the i'th broadcast message (iff arg[1] does not specify silent)
-	 * 
-	 * @param args The command line arguments by which we are instructed to run a test (or not)
-	 * @throws FileNotFoundException  If the config file cannot be found
-	 * @throws NotBoundException If we cannot bind to our port
-	 * @throws RemoteException If a remote exception occurs
-	 * @throws MalformedURLException If a bad ip was specified in the config file
-	 * @throws AlreadyBoundException If we are rebinding a port
+	 * We are the main process, deploy all the jars.
+	 * @throws FileNotFoundException 
 	 */
-	public static void main(String[] args) throws FileNotFoundException, MalformedURLException, RemoteException, NotBoundException, AlreadyBoundException {
+	public static void deployJars() throws FileNotFoundException{
+		Map<Long, RemoteHost> hosts = new ConfigReader().read();
+		for (Long id : hosts.keySet()){
+			invokeJar("" + id);
+		}
+	}
+	
+	/**
+	 * Invoke a the Assignment1.jar with certain command line arguments
+	 * 
+	 * @param args The command line arguments
+	 */
+	private static void invokeJar(final String... args){
+		Thread t = new Thread(new Runnable(){
+
+			@Override
+			public void run() {
+				try {
+					String command = "java -jar ass2.jar";
+					for (String arg: args)
+						command += " \"" + arg + "\"";
+					Process p = Runtime.getRuntime().exec(command);
+					p.waitFor();
+					InputStream in = p.getInputStream();
+					InputStream err = p.getErrorStream();
+
+					byte b[]=new byte[in.available()];
+					in.read(b,0,b.length);
+					System.out.println(new String(b));
+
+					byte c[]=new byte[err.available()];
+					err.read(c,0,c.length);
+					System.out.println(new String(c));
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+		});
+
+		t.start();
+	}
+	
+	public static void main(String[] args) throws FileNotFoundException, MalformedURLException, RemoteException, NotBoundException, AlreadyBoundException, InterruptedException {
+		//We are the main process that launches the components
+		if (args.length == 0){
+			deployJars();
+			return;
+		}
+		//Otherwise we are supposed to start requesting CSs
 		Long ourid = Long.parseLong(args[0]);
 		Map<Long, RemoteHost> hosts = new ConfigReader().read();
 		RemoteHost me = hosts.get(ourid);
@@ -87,64 +109,9 @@ public class Main{
 			/*
 			 * Set up all classes 
 			 */
-			Main listener = new Main(me.getId());
-			listener.testing = args.length > 1;
-			
-			Connector c = new Connector(me);
-			c.setIndex(hosts);
-	
-			TotalOrder torder = new TotalOrder(c, me.getId(), hosts.keySet(), listener);
-			
-			/*
-			 * If not in testing mode launch the consule UI
-			 * Otherwise execute the testing as instructed by the arguments
-			 */
-			if (!listener.testing){
-				BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-				while (true)
-				{
-					
-					try {
-						System.out.print(" > ");
-						String line = br.readLine();
-						
-						if (line.toLowerCase().equals("exit"))
-							break;
-		
-						Message message = new Message(line);
-		
-						torder.broadcast(message);
-						
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			} else { 
-				
-				if (!"silent".equals(args[1])){
-					try {
-						Thread.sleep(500); // Wait for all processes to start running
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					/*
-					 * Sequentially start broadcasting all our instructed messages
-					 */
-					for (int i = 1; i < args.length; i++){
-						Message message = new Message(args[i]);
-						torder.broadcast(message);
-					}
-				}
-				
-				/*
-				 * Wait for everyone to finish 
-				 */
-				try {
-					Thread.sleep(10000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			Connector connector = new Connector(me);
+			Component comp = new Component(connector, me, hosts.keySet(), requestSets);
+			comp.useResources(4);
 		}
 		finally
 		{
@@ -155,31 +122,6 @@ public class Main{
 			System.out.println("SHUTTING DOWN");
 			System.exit(0);
 		}
-	}
-
-	@Override
-	/**
-	 * Callback for when a message is delivered.
-	 * If we are in interactive UI mode, show a pretty frame with a 
-	 * colorized message.
-	 */
-	public void deliverMessage(final Message message) {
-		if (!testing)
-		SwingUtilities.invokeLater(new Runnable(){
-			@Override
-			public void run() {
-				JFrame frame = new JFrame("Process " + myId + " | Message Delivery");
-				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-				frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.PAGE_AXIS));
-				frame.getContentPane().add(new JLabel("You ("+myId+") got the following message delivered from " + message.getID().getBroadcaster() + ":"));
-				frame.getContentPane().add(new JLabel(" "));
-				frame.getContentPane().add(new JLabel("<html><font color='red'>" + message.toString() + "</font></html>"));
-				
-				frame.pack();
-				frame.setVisible(true);
-			}
-		});
 	}
 
 }
