@@ -126,13 +126,15 @@ public class Main{
 		
 		try
 		{
+			Connector connector = new Connector(me);
+			connector.setIndex(hosts);
+			
 			Thread.sleep(2000);
 			
 			/*
 			 * Set up all classes 
 			 */
-			Connector connector = new Connector(me);
-			connector.setIndex(hosts);
+			
 			Component comp = new Component(connector, me, hosts.keySet(), requestSets);
 			comp.useResources(1);
 			

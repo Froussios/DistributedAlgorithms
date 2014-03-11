@@ -75,13 +75,6 @@ public class Connector {
 		RemoteHost rh = this.index.get(toProcess);
 		String remoteUrl = rh.getURL(objectName);
 		IRMIConnector remoteReceiver = (IRMIConnector) java.rmi.Naming.lookup(remoteUrl);
-		// Random delay
-		try {
-			if (id != 4)
-				Thread.sleep((long) (20));
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		remoteReceiver.receive(id, message);
 	}
 	
