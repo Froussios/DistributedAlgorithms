@@ -46,7 +46,7 @@ public class Main{
 	 * @throws FileNotFoundException 
 	 * @throws InterruptedException 
 	 */
-	public static void deployJars() throws FileNotFoundException, InterruptedException{
+	public static void deployJars(int timeout) throws FileNotFoundException, InterruptedException{
 		Map<Long, RemoteHost> hosts = new ConfigReader().read();
 		LinkedList<Thread> threads = new LinkedList<Thread>();
 		for (Long id : hosts.keySet()){
@@ -55,7 +55,7 @@ public class Main{
 		}
 		
 		for (Thread t : threads)
-			t.join();
+			t.join(timeout);
 	}
 	
 	/**
@@ -108,8 +108,10 @@ public class Main{
 	
 	public static void main(String[] args) throws FileNotFoundException, MalformedURLException, RemoteException, NotBoundException, AlreadyBoundException, InterruptedException {
 		//We are the main process that launches the components
+		int threadTimeout = 8000;
+		
 		if (args.length == 0){
-			deployJars();
+			deployJars(threadTimeout+500);
 			System.out.println("SHUTTING DOWN");
 			System.exit(0);
 		}
@@ -134,7 +136,7 @@ public class Main{
 			Component comp = new Component(connector, me, hosts.keySet(), requestSets);
 			comp.useResources(1);
 			
-			Thread.sleep(8000);
+			Thread.sleep(threadTimeout);
 		} catch (Exception e){
 			e.printStackTrace();
 		}
