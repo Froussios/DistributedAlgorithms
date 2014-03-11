@@ -54,8 +54,15 @@ public class Main{
 			threads.add(t);
 		}
 		
-		for (Thread t : threads)
-			t.join(timeout);
+		boolean first = true;
+		
+		for (Thread t : threads){
+			if (first)
+				t.join(timeout);
+			else
+				t.join(10);
+			first = false;
+		}
 	}
 	
 	/**
@@ -111,7 +118,7 @@ public class Main{
 		int threadTimeout = 8000;
 		
 		if (args.length == 0){
-			deployJars(threadTimeout+500);
+			deployJars(threadTimeout+2500);
 			System.out.println("SHUTTING DOWN");
 			System.exit(0);
 		}
