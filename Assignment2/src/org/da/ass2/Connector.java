@@ -75,6 +75,7 @@ public class Connector {
 		RemoteHost rh = this.index.get(toProcess);
 		String remoteUrl = rh.getURL(objectName);
 		IRMIConnector remoteReceiver = (IRMIConnector) java.rmi.Naming.lookup(remoteUrl);
+		log("> [" + message.getTimestamp() + "] " + message.toString() + "->" + toProcess);
 		remoteReceiver.receive(id, message);
 	}
 	
