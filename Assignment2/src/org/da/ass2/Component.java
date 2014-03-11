@@ -138,11 +138,9 @@ public class Component implements GenericMessageListener {
 	
 	public void receiveGrant(long fromProcess){
 		synchronized(confirmations){
-			connector.log("Stopped waiting for " + fromProcess);
-			for (Long l : confirmations)
-				connector.log("Waited for: " + l);
-			confirmations.remove(fromProcess);
-			connector.log("Still waiting for: " + confirmations.size());
+			boolean removed = confirmations.remove(fromProcess);
+			if (!removed)
+				connector.log("ERROR: RECEIVED GRANT FROM " + fromProcess + " BUT WE WERE NOT WAITING FOR IT");
 			if (confirmations.isEmpty())
 				waitForPostponed.release();
 		}
