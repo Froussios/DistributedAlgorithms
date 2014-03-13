@@ -101,7 +101,7 @@ public class Component implements GenericMessageListener {
 	public void receive(GenericMessage gm, long fromProcess)
 			throws MalformedURLException, RemoteException, NotBoundException {
 		
-		//connector.log("Received " + gm.toString() + "\t from " + fromProcess);
+		connector.log("Received " + gm.toString() + "\t from " + fromProcess);
 		
 		if (gm instanceof Grant) {
 			receiveGrant(fromProcess);
