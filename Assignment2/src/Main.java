@@ -212,14 +212,14 @@ public class Main implements Runnable {
 		this.me = me;
 
 		for (int i=0; i<times; i++){
-			// Time working outside the crititcal section
+			// Time working outside the critical section
 			while (true)
 			{
 				synchronized (ran) {
 					if (ran)
 						break;
 				}
-				Thread.sleep(5);
+				Thread.sleep(20);
 			}
 			
 			int ms = random.nextInt(40)+10;
