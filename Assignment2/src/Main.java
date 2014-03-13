@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Random;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -20,7 +21,7 @@ import org.da.ass2.messages.*;
 /**
  * The main entrypoint for the jar files
  */
-public class Main{
+public class Main implements Runnable {
 	
 	/**
 	 * From a group of hosts construct a group -> hosts mapping
@@ -115,7 +116,7 @@ public class Main{
 	
 	public static void main(String[] args) throws FileNotFoundException, MalformedURLException, RemoteException, NotBoundException, AlreadyBoundException, InterruptedException {
 		//We are the main process that launches the components
-		int threadTimeout = 8000;
+		int threadTimeout = 15000;
 		
 		if (args.length == 0){
 			deployJars(threadTimeout+2500);
@@ -142,8 +143,9 @@ public class Main{
 			 * Set up all classes 
 			 */
 			
+			Main m = new Main();
 			Component comp = new Component(connector, me, hosts.keySet(), requestSets);
-			comp.useResources(1);
+			m.useResources(10, comp, me);
 			
 			Thread.sleep(threadTimeout);
 		} catch (Exception e){
@@ -156,6 +158,78 @@ public class Main{
 			 */
 			System.out.println(me.getId() + " stopped listening");
 			java.rmi.server.UnicastRemoteObject.unexportObject(reg,true);
+		}
+	}
+
+	
+	
+	
+	/*
+	 * 
+	 * Use component
+	 * 
+	 */
+	
+	
+	
+	Random random = new Random();
+	Boolean ran = true;
+	RemoteHost me;
+	
+	
+	/**
+	 * The payload of a critical section
+	 */
+	@Override
+	public void run() {
+		// Time working inside the critical section
+		System.out.println(System.currentTimeMillis() + " " + me.getId() + " entered CS");
+		int ms = random.nextInt(20)+10;
+		try {
+			Thread.sleep(ms);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		synchronized (ran) {
+			ran = true;
+		}
+		System.out.println(System.currentTimeMillis() + " " + me.getId() + " exited CS");
+	}
+	
+	
+	/**
+	 * Repeatedly enter and exit the critical section
+	 * @param times The number of time to enter the critical section
+	 * @param comp The mutual exclusion implementation to use
+	 * @param me The information for the localhost
+	 * @throws MalformedURLException
+	 * @throws RemoteException
+	 * @throws NotBoundException
+	 * @throws InterruptedException
+	 */
+	public void useResources(int times, Component comp, RemoteHost me) throws MalformedURLException, RemoteException, NotBoundException, InterruptedException{
+		this.me = me;
+
+		for (int i=0; i<times; i++){
+			// Time working outside the crititcal section
+			while (true)
+			{
+				synchronized (ran) {
+					if (ran)
+						break;
+				}
+				Thread.sleep(5);
+			}
+			
+			int ms = random.nextInt(40)+10;
+			Thread.sleep(ms);
+			
+			// Request critical section
+			ran = false;
+			//System.out.println(System.currentTimeMillis() + " " + me.getId() + " requesting CS");
+			comp.requestCS(this);
+			
 		}
 	}
 

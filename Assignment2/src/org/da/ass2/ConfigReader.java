@@ -25,6 +25,10 @@ public class ConfigReader {
 		Scanner sc = new Scanner(f);
 		
 		while (sc.hasNext()){
+			if (sc.hasNext("#")) {
+				sc.nextLine();
+				continue;
+			}
 			long id = sc.nextLong();
 			String ip = sc.next();
 			int regport = sc.nextInt();

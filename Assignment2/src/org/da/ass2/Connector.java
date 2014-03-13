@@ -75,7 +75,7 @@ public class Connector {
 		RemoteHost rh = this.index.get(toProcess);
 		String remoteUrl = rh.getURL(objectName);
 		IRMIConnector remoteReceiver = (IRMIConnector) java.rmi.Naming.lookup(remoteUrl);
-		log("> [" + message.getTimestamp() + "] " + message.toString() + "->" + toProcess);
+		log("Sent     " + message.toString() + "\t to   " + toProcess);
 		remoteReceiver.receive(id, message);
 	}
 	
@@ -90,7 +90,7 @@ public class Connector {
 	 */
 	public void receive(long fromProcess, GenericMessage message) throws MalformedURLException, RemoteException, NotBoundException{
 		// Log reception
-		log("[" + fromProcess + ":" + message.getTimestamp() + "] " + message.toString());
+		log("Received " + message.toString() + "\t from " + fromProcess);
 		// Delegate message to listener
 		this.gmListener.receive(message, fromProcess);
 	}
@@ -105,6 +105,7 @@ public class Connector {
 			sem.acquire();
 			FileWriter fw = new FileWriter(id + ".log", true);
 			fw.write(message+"\n");
+//			System.out.println("" + id + ": " + message);
 			fw.close();
 			sem.release();
 		} catch (IOException e) {

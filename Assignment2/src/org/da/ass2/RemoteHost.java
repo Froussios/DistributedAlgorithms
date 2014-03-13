@@ -8,7 +8,7 @@ import java.util.Collection;
  * @author Chris
  *
  */
-public class RemoteHost {
+public class RemoteHost implements Comparable<RemoteHost> {
 
 	private final long id;
 	private final String ip;
@@ -68,6 +68,11 @@ public class RemoteHost {
 	 */
 	public Collection<Integer> getGroups(){
 		return groups;
+	}
+
+	@Override
+	public int compareTo(RemoteHost arg0) {
+		return Long.compare(this.getId(), arg0.getId());
 	}
 	
 }

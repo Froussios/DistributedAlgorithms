@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
 
 import org.da.ass2.messages.GenericMessage;
@@ -20,34 +21,54 @@ import org.da.ass2.messages.Release;
 import org.da.ass2.messages.Relinquish;
 import org.da.ass2.messages.Request;
 
-public class Component implements GenericMessageListener {
 
+/**
+ * Implements the Meakawa mutual exclusion algorithm.
+ * 
+ * @author cfroussios
+ *
+ */
+public class Component implements GenericMessageListener {
+	
+	Runnable callback;
 	private Connector connector;
 	private RemoteHost me;
 	private Set<Long> allIds;
-	private Map<Integer, Collection<RemoteHost>> requestSets;
 	
 	private long scalarClock;
 	
-	private PriorityQueue<Request> requestQueue;
+	int no_grants = 0;
+	boolean granted;
+	boolean inquiring;
+	Request current_grant;
+	boolean postponed;
+	PriorityQueue<Request> Q = new PriorityQueue<Request>();
+	Set<RemoteHost> requestSet = new TreeSet<RemoteHost>();
 	
-	private LinkedList<Long> confirmations = new LinkedList<Long>();;
-	private Request granted;
-	private boolean relinquished = false;
 	
-	private Semaphore waitForPostponed = new Semaphore(1);
-	
+	/**
+	 * A new component
+	 * @param connector The message exchange interface
+	 * @param me The localhost information
+	 * @param allIds All the processes in the network
+	 * @param requestSets This process'es request set
+	 * @throws InterruptedException
+	 */
 	public Component(Connector connector, RemoteHost me, Set<Long> allIds, Map<Integer, Collection<RemoteHost>> requestSets) throws InterruptedException{
 		this.connector = connector;
 		this.me = me;
 		this.allIds = allIds;
-		this.requestSets = requestSets;
 		
-		this.requestQueue = new PriorityQueue<Request>();
-		waitForPostponed.acquire();
+		for (Integer group : me.getGroups()) {
+			Collection<RemoteHost> others = requestSets.get(group);
+			for (RemoteHost other : others){
+				requestSet.add(other);
+			}
+		}
 		
 		this.connector.subscribe(this);
 	}
+	
 	
 	/**
 	 * Request to enter the Critical Section
@@ -56,62 +77,25 @@ public class Component implements GenericMessageListener {
 	 * @throws RemoteException 
 	 * @throws MalformedURLException 
 	 */
-	public void requestCS() throws MalformedURLException, RemoteException, NotBoundException{
+	public synchronized void requestCS(Runnable callback) throws MalformedURLException, RemoteException, NotBoundException{
+		
+		this.callback = callback;
 		
 		Request sendMe = applyTimestamp(new Request());
 		
+		no_grants = 0;
 		
-		synchronized(confirmations){
-			confirmations.clear();
-		}
-
-		for (Integer group : me.getGroups()){
-			Collection<RemoteHost> others = requestSets.get(group);
-			for (RemoteHost other : others){
-				synchronized(confirmations){
-					if (!confirmations.contains(other.getId())){
-						confirmations.add(other.getId());
-						connector.send(other.getId(), sendMe);
-					}
-				}
-			}
-		}
-		
-		while (true){
-			synchronized(confirmations){
-				if(confirmations.isEmpty()){
-					break;
-				}
-			}
-			try {Thread.sleep(100);} catch (InterruptedException e) { break; }
+		for (RemoteHost other : requestSet){
+			connector.send(other.getId(), sendMe);
 		}
 	}
+
 	
 	/**
-	 * Release our critical section
-	 * 
-	 * @throws MalformedURLException
-	 * @throws RemoteException
-	 * @throws NotBoundException
+	 * Handle any message received
 	 */
-	public void releaseCS() throws MalformedURLException, RemoteException, NotBoundException{
-		
-		Release sendMe = applyTimestamp(new Release());
-		LinkedList<Long> sentTo = new LinkedList<Long>();
-		
-		for (Integer group : me.getGroups()){
-			Collection<RemoteHost> others = requestSets.get(group);
-			for (RemoteHost other : others){
-				if (sentTo.contains(other.getId()))
-					continue;
-				sentTo.add(other.getId());
-				connector.send(other.getId(), sendMe);
-			}
-		}
-	}
-
 	@Override
-	public void receive(GenericMessage gm, long fromProcess)
+	public synchronized void receive(GenericMessage gm, long fromProcess)
 			throws MalformedURLException, RemoteException, NotBoundException {
 		if (gm instanceof Grant){
 			receiveGrant(fromProcess);
@@ -131,99 +115,163 @@ public class Component implements GenericMessageListener {
 		}
 	}
 
+	
 	@Override
 	public long getProcessId() {
 		return me.getId();
 	}
 	
-	public void receiveGrant(long fromProcess){
-		synchronized(confirmations){
-			boolean removed = confirmations.remove(fromProcess);
-			if (!removed)
-				connector.log("ERROR: RECEIVED GRANT FROM " + fromProcess + " BUT WE WERE NOT WAITING FOR IT");
-			if (confirmations.isEmpty())
-				waitForPostponed.release();
+	
+	/**
+	 * Handle the reception of a grant message
+	 * 
+	 * @param fromProcess
+	 * @throws MalformedURLException
+	 * @throws RemoteException
+	 * @throws NotBoundException
+	 */
+	public synchronized void receiveGrant(long fromProcess) throws MalformedURLException, RemoteException, NotBoundException{
+		no_grants ++;
+		if ( no_grants == requestSet.size() ) {
+			postponed= false;
+			
+			callback.run();
+			
+			Release sendMe = applyTimestamp(new Release());
+			for (RemoteHost other : requestSet) {
+				connector.send(other.getId(), sendMe);				
+			}
 		}
 	}
 	
+	
+	/**
+	 * Handle the reception of a Inquire message
+	 * 
+	 * @param fromProcess
+	 * @throws InterruptedException
+	 * @throws MalformedURLException
+	 * @throws RemoteException
+	 * @throws NotBoundException
+	 */
 	public void receiveInquire(long fromProcess) throws InterruptedException, MalformedURLException, RemoteException, NotBoundException{
-		waitForPostponed.acquire();
-		synchronized(requestQueue){
-			if (!requestQueue.isEmpty() || relinquished){
-				relinquished = true;
-				synchronized(confirmations){
-					if (confirmations.contains(fromProcess))
-						confirmations.add(fromProcess);
+		while (true) {
+			synchronized (this) {
+				if (postponed || no_grants==requestSet.size())
+					break;
+			}
+			Thread.sleep(5);
+		}
+		
+		synchronized (this) {
+			if (postponed) {
+				no_grants--;
+				
+				Relinquish sendMe = applyTimestamp(new Relinquish());
+				connector.send(fromProcess, sendMe);
+			}
+		}
+	}
+	
+	
+	/**
+	 * Handle the reception of a release message
+	 * 
+	 * @param fromProcess
+	 * @param r The message received
+	 * @throws MalformedURLException
+	 * @throws RemoteException
+	 * @throws NotBoundException
+	 */
+	public synchronized void receiveRelease(long fromProcess, Release r) throws MalformedURLException, RemoteException, NotBoundException{
+		
+		granted = false;
+		inquiring = false;
+//		System.out.println("Received release from " + fromProcess + ", # processes still waiting: " + Q.size());
+		if (Q.size() > 0) {
+			current_grant = Q.remove();
+			long j = current_grant.getID().getBroadcaster();
+			Grant sendMe = applyTimestamp(new Grant());
+			connector.send(j, sendMe);
+			granted = true;
+		}
+	}
+	
+	
+	/**
+	 * Handle the reception of a Relinquish message
+	 * 
+	 * @param fromProcess
+	 * @throws MalformedURLException
+	 * @throws RemoteException
+	 * @throws NotBoundException
+	 */
+	public synchronized void receiveRelinquish(long fromProcess) throws MalformedURLException, RemoteException, NotBoundException{
+		
+		inquiring = false;
+		granted = false;
+		Q.add(current_grant);
+		current_grant = Q.remove();
+		granted = true;
+		long l = current_grant.getID().getBroadcaster();
+		Grant sendMe = applyTimestamp(new Grant());
+		connector.send(l, sendMe);
+	}
+	
+	
+	/**
+	 * Handle the reception of a Request message
+	 * @param fromProcess
+	 * @param r
+	 * @throws MalformedURLException
+	 * @throws RemoteException
+	 * @throws NotBoundException
+	 */
+	public synchronized void receiveRequest(long fromProcess, Request r) throws MalformedURLException, RemoteException, NotBoundException{
+		
+		if (!granted) {
+			current_grant = r;
+			Grant sendMe = applyTimestamp(new Grant());
+			connector.send(fromProcess, sendMe);
+			granted = true;
+		}
+		else {
+			Q.add(r);
+//			System.out.println("Received request from " + fromProcess + ", # processes waiting: " + Q.size());
+			Request head = Q.peek();
+			if (current_grant.compareTo(r) < 0 || head.compareTo(r) < 0) {
+				Postponed sendMe = applyTimestamp(new Postponed());
+				connector.send(fromProcess, sendMe);
+			}
+			else {
+				if (!inquiring) {
+					inquiring = true;
+					long l = current_grant.getID().getBroadcaster();
+					Inquire sendMe = applyTimestamp(new Inquire());
+					connector.send(l, sendMe);
 				}
-				connector.send(fromProcess, applyTimestamp(new Relinquish()));
 			}
 		}
 	}
 	
-	public void receiveRelease(long fromProcess, Release r) throws MalformedURLException, RemoteException, NotBoundException{
-		synchronized(requestQueue){
-			granted = null;
-			if (!requestQueue.isEmpty()){
-				Request req = requestQueue.remove();
-				granted = req;
-				connector.send(req.getID().getBroadcaster(), applyTimestamp(new Grant())); 
-			}
-		}
-	}
 	
-	public void receiveRelinquish(long fromProcess) throws MalformedURLException, RemoteException, NotBoundException{
-		synchronized(requestQueue){
-			Request old = granted;
-			Request req = requestQueue.remove();
-			granted = req;
-			connector.send(req.getID().getBroadcaster(), applyTimestamp(new Grant()));
-			requestQueue.add(old);
-		}
+	/**
+	 * Handle the reception of Postponed message.
+	 * 
+	 * @param fromProcess
+	 */
+	public synchronized void receivePostponed(long fromProcess){
+		
+		postponed = true;
 	}
-	
-	public void receiveRequest(long fromProcess, Request r) throws MalformedURLException, RemoteException, NotBoundException{
-		synchronized(requestQueue){
-			if (granted == null){
-				granted = r;
-				connector.send(fromProcess, applyTimestamp(new Grant()));
-			} else {
-				requestQueue.add(r);
-				if (requestQueue.peek().equals(r) && granted.compareTo(r)>0){
-					connector.send(granted.getID().getBroadcaster(), applyTimestamp(new Inquire()));
-				} else {
-					connector.send(fromProcess, applyTimestamp(new Postponed()));
-				}
-			}
-		}
-	}
-	
-	public void receivePostponed(long fromProcess){
-		waitForPostponed.release();
-	}
-	
-	public void useResources(int times) throws MalformedURLException, RemoteException, NotBoundException, InterruptedException{
-		Random random = new Random();
 
-		for (int i=0; i<times; i++){
-			// Time working outside the crititcal section
-			int ms = random.nextInt(40)+10;
-			Thread.sleep(ms);
-			
-			// Request critical section
-			System.out.println(System.currentTimeMillis() + " " + me.getId() + " requesting CS");
-			requestCS();
-			System.out.println(System.currentTimeMillis() + " " + me.getId() + " entered CS");
-			
-			// Time working inside the critical section
-			ms = random.nextInt(20)+10;
-			Thread.sleep(ms);
-			
-			// Exit critical section
-			releaseCS();
-			System.out.println(System.currentTimeMillis() + " " + me.getId() + " exited CS");
-		}
-	}
 	
+	/**
+	 * Prepare a message for sending
+	 * 
+	 * @param gm The message to be prepared
+	 * @return The prepared message
+	 */
 	private <T extends GenericMessage> T applyTimestamp(T gm){
 		scalarClock++;
 		gm.setTimestamp(scalarClock);
