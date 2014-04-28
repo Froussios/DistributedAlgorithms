@@ -64,7 +64,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 		while (alive && !untraversed.isEmpty()){
 			long link = untraversed.poll();
 			try {
-				connector.send(link, new CandidateMessage(level, id));
+				connector.send(link, new CandidateMessage(level, myid));
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
 				e.printStackTrace();
@@ -72,10 +72,12 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 			boolean R = true;
 			while (R){
 				R = false;
+				System.out.println(myid + "] Candidate waiting for message");
 				while ((alive && messageQueue.isEmpty()) || (alive && messageQueue.peek().getLink() != link)){
 					// Wait
 					try { Thread.sleep(5); } catch (InterruptedException e) {}
 				}
+				System.out.println(myid + "] Candidate received message");
 				MsgTuple message = messageQueue.poll();
 				if (message.getId() == id && !killed){
 					level++;

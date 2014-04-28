@@ -61,6 +61,7 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 		while (alive){
 			// Wait for a message
 			if (!messageQueue.isEmpty()){
+				System.out.println(myid + "] Ordinary received message");
 				MsgTuple message = messageQueue.poll();
 				
 				// Construct the current owner tuple to compare to
@@ -85,7 +86,8 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 				} else {
 					owner = potential_owner;
 					try {
-						connector.send(owner, new CandidateMessage(message.getLevel(), message.getId()));
+						if (owner != -1)
+							connector.send(owner, new CandidateMessage(message.getLevel(), message.getId()));
 					} catch (MalformedURLException | RemoteException
 							| NotBoundException e) {
 						e.printStackTrace();
