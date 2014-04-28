@@ -53,5 +53,11 @@ public class MsgTuple implements Comparable<MsgTuple>{
 			return comp;
 		}
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "M(" + level + "," + id + ")";
+	}
 
 }
