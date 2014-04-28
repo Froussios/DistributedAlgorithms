@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
@@ -25,7 +26,7 @@ public class Connector {
 
 	private static String objectName = "DA-MessageReceiver";
 
-	private GenericMessageListener gmListener;
+	private ArrayList<GenericMessageListener> gmListeners = new ArrayList<GenericMessageListener>();
 	
 	private long id;
 	
@@ -59,7 +60,7 @@ public class Connector {
 	 * @param listener The GenericMessage listener
 	 */
 	public void subscribe(GenericMessageListener listener){
-		this.gmListener = listener;
+		gmListeners.add(listener);
 		this.id = listener.getProcessId();
 		clearLog();
 	}
@@ -95,7 +96,8 @@ public class Connector {
 		// Log reception
 		//log("Received " + message.toString() + "\t from " + fromProcess);
 		// Delegate message to listener
-		this.gmListener.receive(message, fromProcess);
+		for (GenericMessageListener listener : gmListeners)
+			listener.receive(message, fromProcess);
 	}
 	
 	/**
