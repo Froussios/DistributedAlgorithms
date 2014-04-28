@@ -29,26 +29,6 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 	private final long myid;
 	
 	/**
-	 * The link our owner resides on
-	 */
-	private Long link = null;
-	
-	/**
-	 * Our process level
-	 */
-	private int level = -1;
-	
-	/**
-	 * Our owner process id
-	 */
-	private long owner = -1;
-	
-	/**
-	 * All currently received candidate messages
-	 */
-	private ArrayList<CandidateMessage> candidateMessages = (ArrayList<CandidateMessage>) Collections.synchronizedList(new ArrayList<CandidateMessage>());
-	
-	/**
 	 * Construct a new ordinary process without
 	 * running it.
 	 * 
@@ -59,7 +39,6 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 		
 		this.connector = connector;
 		this.myid = id;
-		this.owner = id;
 	}
 	
 	/**
@@ -72,47 +51,14 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 	@Override
 	public void run(){
 		while (alive){
-			// Send ACK over link
-			try {
-				if (link != null)
-					connector.send(link, new Acknowledgement());
-			} catch (MalformedURLException | RemoteException
-					| NotBoundException e) {
-				e.printStackTrace();
-				break;
-			}
 			
-			// Increase level
-			level++;
-			
-			// Create R
-			ArrayList<CandidateMessage> R = new ArrayList<CandidateMessage>();
-			R.addAll(candidateMessages);
-			
-			// Sort R lexicographically (small -> large)
-			Collections.sort(R);
-			CandidateMessage max = R.get(R.size()-1);
-			
-			// Set up comparable
-			CandidateMessage current = new CandidateMessage(level);
-			current.setID(new MessageID(owner, 0));
-			
-			// Compare and set
-			if (max.compareTo(current) > 0){
-				level = max.getLevel();
-				owner = max.getID().getBroadcaster();
-				link = max.getID().getBroadcaster();
-			} else {
-				link = null;
-			}
 		}
 	}
 
 	@Override
 	public void receive(GenericMessage gm, long fromProcess)
 			throws MalformedURLException, RemoteException, NotBoundException {
-		if (gm instanceof CandidateMessage)
-			candidateMessages.add((CandidateMessage) gm);
+		
 	}
 
 	@Override
