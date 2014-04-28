@@ -86,7 +86,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 					level++;
 					untraversed.remove(message.getLink());
 				} else {
-					if (message.compareTo(new MsgTuple(level, myid)) <= 0){
+					if (message.compareTo(new MsgTuple(level, myid)) < 0){
 						// Goto R
 						R = true;
 					} else {
