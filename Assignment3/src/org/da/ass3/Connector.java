@@ -13,7 +13,6 @@ import org.da.ass3.GenericMessageListener;
 import org.da.ass3.RemoteHost;
 import org.da.ass3.connector.IRMIConnector;
 import org.da.ass3.connector.RMIReceiver;
-import org.da.ass3.connector.*;
 import org.da.ass3.messages.GenericMessage;
 
 /**
