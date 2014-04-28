@@ -44,6 +44,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 		connector.subscribe(this);
 		
 		this.untraversed.addAll(allIds);
+		untraversed.remove(myid);
 	}
 	
 	/**
@@ -67,20 +68,23 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 				connector.send(link, new CandidateMessage(level, myid));
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
-				e.printStackTrace();
+				break;
 			}
 			boolean R = true;
 			while (R){
 				R = false;
 				System.out.println(myid + "] Candidate waiting for message");
-				while ((alive && messageQueue.isEmpty()) || (alive && messageQueue.peek().getLink() != link)){
+				while (alive && messageQueue.isEmpty()){
 					// Wait
 					try { Thread.sleep(5); } catch (InterruptedException e) {}
 				}
+				if (!alive)
+					break;
 				System.out.println(myid + "] Candidate received message");
 				MsgTuple message = messageQueue.poll();
 				if (message.getId() == myid && !killed){
 					level++;
+					untraversed.remove(message.getLink());
 				} else {
 					if (message.compareTo(new MsgTuple(level, myid)) < 0){
 						// Goto R
