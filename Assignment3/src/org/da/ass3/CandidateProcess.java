@@ -63,7 +63,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 	@Override
 	public void run(){
 		while (alive && !untraversed.isEmpty()){
-			long link = untraversed.poll();
+			long link = untraversed.peek();
 			try {
 				connector.send(link, new CandidateMessage(level, myid));
 			} catch (MalformedURLException | RemoteException
