@@ -91,6 +91,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 						R = true;
 					} else {
 						try {
+							System.out.println(myid + "] Candidate sent message " + message.getLevel() + " " + message.getId() + " to " + link);
 							connector.send(link, new CandidateMessage(message.getLevel(), message.getId()));
 						} catch (MalformedURLException | RemoteException
 								| NotBoundException e) {

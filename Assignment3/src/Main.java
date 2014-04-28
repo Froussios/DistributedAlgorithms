@@ -62,7 +62,7 @@ public class Main {
 			proc4_c.start();
 			
 			// Wait for proc2_c to be elected
-			proc1_c.join(4000);
+			proc1_c.join(2000);
 			proc2_c.join(500);
 			proc3_c.join(10);
 			proc4_c.join(10);
