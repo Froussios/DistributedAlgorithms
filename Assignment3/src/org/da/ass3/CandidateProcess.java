@@ -100,7 +100,6 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 						killed = true;
 						// Goto R
 						R = true;
-						return;
 					}
 				}
 			}
