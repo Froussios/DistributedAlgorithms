@@ -74,7 +74,7 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 				if (compare < 0){
 					// Ignore
 				} else if ( compare > 0){
-					potential_owner = message.getLink();
+					potential_owner = message.getId();
 					level = message.getLevel();
 					owner_id = message.getId();
 					if (owner == -1)
