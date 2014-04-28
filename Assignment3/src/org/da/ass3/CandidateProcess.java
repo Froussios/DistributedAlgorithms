@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -35,11 +36,13 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 	 * 
 	 * Don't forget to run start()!
 	 */
-	public CandidateProcess(Connector connector, long id){
+	public CandidateProcess(Connector connector, long id, Collection<Long> allIds){
 		super("OrdinaryProcess");
 		
 		this.connector = connector;
 		this.myid = id;
+		
+		this.untraversed.addAll(allIds);
 	}
 	
 	/**
