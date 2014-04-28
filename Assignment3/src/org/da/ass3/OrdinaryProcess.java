@@ -61,6 +61,7 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 	public void run(){
 		while (alive){
 			// Wait for a message
+			try { Thread.sleep(100); } catch (InterruptedException e) {}
 			if (!messageQueue.isEmpty()){
 				System.out.println(myid + "] Ordinary received message");
 				MsgTuple message = messageQueue.poll();

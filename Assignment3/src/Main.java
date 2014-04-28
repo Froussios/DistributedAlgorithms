@@ -39,12 +39,12 @@ public class Main {
 			Connector c3 = new Connector(new RemoteHost(3, "localhost", 1107));
 			c3.setIndex(index);
 			OrdinaryProcess proc3 = new OrdinaryProcess(c3, 3);
-			//CandidateProcess proc3_c = new CandidateProcess(c3, 3, Arrays.asList(new Long[] {1L, 2L, 3L, 4L}));
+			CandidateProcess proc3_c = new CandidateProcess(c3, 3, Arrays.asList(new Long[] {1L, 2L, 3L, 4L}));
 			
 			Connector c4 = new Connector(new RemoteHost(4, "localhost", 1108));
 			c4.setIndex(index);
 			OrdinaryProcess proc4 = new OrdinaryProcess(c4, 4);
-			//CandidateProcess proc4_c = new CandidateProcess(c4, 4, Arrays.asList(new Long[] {1L, 2L, 3L, 4L}));
+			CandidateProcess proc4_c = new CandidateProcess(c4, 4, Arrays.asList(new Long[] {1L, 2L, 3L, 4L}));
 			
 			// Start the ordinary processes
 			proc1.start();
@@ -58,20 +58,19 @@ public class Main {
 			// Start the candidate
 			proc1_c.start();
 			proc2_c.start();
-			//proc3_c.start();
-			//proc4_c.start();
+			proc3_c.start();
+			proc4_c.start();
 			
 			// Wait for proc2_c to be elected
-			Thread.sleep(5000);
-			proc1_c.join(500);
+			proc1_c.join(4000);
 			proc2_c.join(500);
-			//proc3_c.join(10);
-			//proc4_c.join(10);
+			proc3_c.join(10);
+			proc4_c.join(10);
 			
 			System.out.println("Proc1_c was elected: " + proc1_c.isElected());
 			System.out.println("Proc2_c was elected: " + proc2_c.isElected());
-			//System.out.println("Proc3_c was elected: " + proc3_c.isElected());
-			//System.out.println("Proc4_c was elected: " + proc4_c.isElected());
+			System.out.println("Proc3_c was elected: " + proc3_c.isElected());
+			System.out.println("Proc4_c was elected: " + proc4_c.isElected());
 			
 			// Kill ordinary processes
 			proc1.kill();
@@ -80,8 +79,8 @@ public class Main {
 			proc4.kill();
 			proc1_c.kill();
 			proc2_c.kill();
-			//proc3_c.kill();
-			//proc4_c.kill();
+			proc3_c.kill();
+			proc4_c.kill();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

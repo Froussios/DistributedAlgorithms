@@ -76,7 +76,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 				System.out.println(myid + "] Candidate waiting for message");
 				while (alive && messageQueue.isEmpty()){
 					// Wait
-					try { Thread.sleep(5); } catch (InterruptedException e) {}
+					try { Thread.sleep(100); } catch (InterruptedException e) {}
 				}
 				if (!alive)
 					break;
