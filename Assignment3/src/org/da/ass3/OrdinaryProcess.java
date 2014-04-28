@@ -38,9 +38,10 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 	public OrdinaryProcess(Connector connector, long id){
 		super("OrdinaryProcess");
 		
+		this.myid = id;
+		
 		this.connector = connector;
 		connector.subscribe(this);
-		this.myid = id;
 	}
 	
 	/**
@@ -100,8 +101,12 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 	@Override
 	public void receive(GenericMessage gm, long fromProcess)
 			throws MalformedURLException, RemoteException, NotBoundException {
-		if (gm instanceof CandidateMessage)
-			messageQueue.add(new MsgTuple((CandidateMessage) gm, fromProcess));
+		if (gm instanceof CandidateMessage){
+			CandidateMessage cm = (CandidateMessage) gm;
+			if (cm.getId() == myid)
+				return;
+			messageQueue.add(new MsgTuple(cm, fromProcess));
+		}
 	}
 
 	@Override

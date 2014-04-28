@@ -25,6 +25,7 @@ public class Main {
 			Connector c1 = new Connector(new RemoteHost(1, "localhost", 1105));
 			c1.setIndex(index);
 			OrdinaryProcess proc1 = new OrdinaryProcess(c1, 1);
+			CandidateProcess proc1_c = new CandidateProcess(c1, 1, Arrays.asList(new Long[] {1L, 2L}));
 			
 			Connector c2 = new Connector(new RemoteHost(2, "localhost", 1106));
 			c2.setIndex(index);
@@ -39,10 +40,15 @@ public class Main {
 			Thread.sleep(500);
 			
 			// Start the candidate
+			proc1_c.start();
 			proc2_c.start();
 			
 			// Wait for proc2_c to be elected
+			proc1_c.join(5000);
 			proc2_c.join(5000);
+			
+			System.out.println("Proc1_c was elected: " + proc1_c.isElected());
+			System.out.println("Proc2_c was elected: " + proc2_c.isElected());
 			
 			// Kill ordinary processes
 			proc1.kill();

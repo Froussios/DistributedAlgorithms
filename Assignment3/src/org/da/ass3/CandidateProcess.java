@@ -41,6 +41,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 		
 		this.connector = connector;
 		this.myid = id;
+		connector.subscribe(this);
 		
 		this.untraversed.addAll(allIds);
 	}
@@ -55,7 +56,6 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 	private ConcurrentLinkedQueue<MsgTuple> messageQueue = new ConcurrentLinkedQueue<MsgTuple>();
 	private ConcurrentLinkedQueue<Long> untraversed = new ConcurrentLinkedQueue<Long>();
 	private int level = -1;
-	private int id = -1;
 	private boolean killed = false;
 	private boolean elected = false;
 	
@@ -79,10 +79,10 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 				}
 				System.out.println(myid + "] Candidate received message");
 				MsgTuple message = messageQueue.poll();
-				if (message.getId() == id && !killed){
+				if (message.getId() == myid && !killed){
 					level++;
 				} else {
-					if (message.compareTo(new MsgTuple(level, id)) < 0){
+					if (message.compareTo(new MsgTuple(level, myid)) < 0){
 						// Goto R
 						R = true;
 					} else {
