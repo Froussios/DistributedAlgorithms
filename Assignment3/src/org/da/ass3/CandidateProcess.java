@@ -63,7 +63,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 	@Override
 	public void run(){
 		while (alive && !untraversed.isEmpty()){
-			long link = untraversed.peek();
+			long link = untraversed.poll();
 			try {
 				connector.send(link, new CandidateMessage(level, myid));
 			} catch (MalformedURLException | RemoteException
@@ -80,19 +80,19 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 				}
 				if (!alive)
 					break;
-				System.out.println(myid + "] Candidate received message");
 				MsgTuple message = messageQueue.poll();
+				System.out.println(myid + "] Candidate received message " + message);
 				if (message.getId() == myid && !killed){
 					level++;
 					untraversed.remove(message.getLink());
 				} else {
-					if (message.compareTo(new MsgTuple(level, myid)) < 0){
+					if (message.compareTo(new MsgTuple(level, myid)) <= 0){
 						// Goto R
 						R = true;
 					} else {
 						try {
-							System.out.println(myid + "] Candidate sent message " + message.getLevel() + " " + message.getId() + " to " + link);
-							connector.send(link, new CandidateMessage(message.getLevel(), message.getId()));
+							System.out.println(myid + "] " + killed + " Candidate sent message " + message.getLevel() + " " + message.getId() + " to " + link);
+							connector.send(message.getLink(), new CandidateMessage(message.getLevel(), message.getId()));
 						} catch (MalformedURLException | RemoteException
 								| NotBoundException e) {
 							e.printStackTrace();
@@ -100,6 +100,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 						killed = true;
 						// Goto R
 						R = true;
+						return;
 					}
 				}
 			}

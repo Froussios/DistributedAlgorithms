@@ -80,7 +80,7 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 					if (owner == -1)
 						owner = potential_owner;
 					try {
-						System.out.println(myid + "] Ordinary sent message " + message.getLevel() + " " + message.getId());
+						System.out.println(myid + "] Ordinary sent message " + message.getLevel() + " " + message.getId() + " to " + owner);
 						connector.send(owner, new CandidateMessage(message.getLevel(), message.getId()));
 					} catch (MalformedURLException | RemoteException
 							| NotBoundException e) {
@@ -90,7 +90,7 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 					owner = potential_owner;
 					try {
 						if (owner != -1){
-							System.out.println(myid + "] Ordinary sent message " + message.getLevel() + " " + message.getId());
+							System.out.println(myid + "] Ordinary sent message " + message.getLevel() + " " + message.getId() + " to " + owner);
 							connector.send(owner, new CandidateMessage(message.getLevel(), message.getId()));
 						}
 					} catch (MalformedURLException | RemoteException
