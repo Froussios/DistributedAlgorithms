@@ -36,8 +36,10 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 	 * 
 	 * Don't forget to run start()!
 	 */
-	public CandidateProcess(Connector connector, long id, Collection<Long> allIds){
+	public CandidateProcess(Connector connector, long id, Collection<Long> allIds, int[] level){
 		super("OrdinaryProcess");
+		
+		this.level = level;
 		
 		this.connector = connector;
 		this.myid = id;
@@ -56,7 +58,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 
 	private ConcurrentLinkedQueue<MsgTuple> messageQueue = new ConcurrentLinkedQueue<MsgTuple>();
 	private ConcurrentLinkedQueue<Long> untraversed = new ConcurrentLinkedQueue<Long>();
-	private int level = -1;
+	private int[] level = null;
 	private boolean killed = false;
 	private boolean elected = false;
 	
@@ -65,7 +67,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 		while (alive && !untraversed.isEmpty()){
 			long link = untraversed.poll();
 			try {
-				connector.send(link, new CandidateMessage(level, myid));
+				connector.send(link, new CandidateMessage(level[0], myid));
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
 				break;
@@ -83,10 +85,10 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 				MsgTuple message = messageQueue.poll();
 				System.out.println(myid + "] Candidate received message " + message);
 				if (message.getId() == myid && !killed){
-					level++;
+					level[0]++;
 					untraversed.remove(message.getLink());
 				} else {
-					if (message.compareTo(new MsgTuple(level, myid)) < 0){
+					if (message.compareTo(new MsgTuple(level[0], myid)) < 0){
 						// Goto R
 						R = true;
 					} else {

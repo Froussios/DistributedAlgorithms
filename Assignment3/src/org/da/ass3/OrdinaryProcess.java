@@ -35,9 +35,10 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 	 * 
 	 * Don't forget to run start()!
 	 */
-	public OrdinaryProcess(Connector connector, long id){
+	public OrdinaryProcess(Connector connector, long id, int[] level){
 		super("OrdinaryProcess");
 		
+		this.level = level;
 		this.myid = id;
 		
 		this.connector = connector;
@@ -52,7 +53,7 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 	}
 	
 	private ConcurrentLinkedQueue<MsgTuple> messageQueue = new ConcurrentLinkedQueue<MsgTuple>();
-	private int level = -1;
+	private int[] level = null;
 	private long owner_id = -1;
 	private long potential_owner = -1;
 	private long owner = -1;
@@ -67,15 +68,15 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 				MsgTuple message = messageQueue.poll();
 				
 				// Construct the current owner tuple to compare to
-				MsgTuple current = new MsgTuple(level, owner_id);
+				MsgTuple current = new MsgTuple(level[0], owner_id);
 				
 				// Compare
 				int compare = message.compareTo(current);
 				if (compare < 0){
 					// Ignore
 				} else if ( compare > 0){
-					potential_owner = message.getId();
-					level = Math.max(level, message.getLevel());
+					potential_owner = message.getLink();
+					level[0] = message.getLevel();
 					owner_id = message.getId();
 					if (owner == -1)
 						owner = potential_owner;

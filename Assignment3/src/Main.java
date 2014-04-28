@@ -25,26 +25,31 @@ public class Main {
 		index.put(3L, new RemoteHost(3L, "localhost", 1107));
 		index.put(4L, new RemoteHost(4L, "localhost", 1108));
 		
+		int[] level1 = new int[]{-1};
+		int[] level2 = new int[]{-1};
+		int[] level3 = new int[]{-1};
+		int[] level4 = new int[]{-1};
+		
 		try{
 			Connector c1 = new Connector(new RemoteHost(1, "localhost", 1105));
 			c1.setIndex(index);
-			OrdinaryProcess proc1 = new OrdinaryProcess(c1, 1);
-			CandidateProcess proc1_c = new CandidateProcess(c1, 1, Arrays.asList(new Long[] {1L, 2L, 3L, 4L}));
+			OrdinaryProcess proc1 = new OrdinaryProcess(c1, 1, level1);
+			CandidateProcess proc1_c = new CandidateProcess(c1, 1, Arrays.asList(new Long[] {1L, 2L, 3L, 4L}), level1);
 			
 			Connector c2 = new Connector(new RemoteHost(2, "localhost", 1106));
 			c2.setIndex(index);
-			OrdinaryProcess proc2 = new OrdinaryProcess(c2, 2);
-			CandidateProcess proc2_c = new CandidateProcess(c2, 2, Arrays.asList(new Long[] {1L, 2L, 3L, 4L}));
+			OrdinaryProcess proc2 = new OrdinaryProcess(c2, 2, level2);
+			CandidateProcess proc2_c = new CandidateProcess(c2, 2, Arrays.asList(new Long[] {1L, 2L, 3L, 4L}), level2);
 			
 			Connector c3 = new Connector(new RemoteHost(3, "localhost", 1107));
 			c3.setIndex(index);
-			OrdinaryProcess proc3 = new OrdinaryProcess(c3, 3);
-			CandidateProcess proc3_c = new CandidateProcess(c3, 3, Arrays.asList(new Long[] {1L, 2L, 3L, 4L}));
+			OrdinaryProcess proc3 = new OrdinaryProcess(c3, 3, level3);
+			CandidateProcess proc3_c = new CandidateProcess(c3, 3, Arrays.asList(new Long[] {1L, 2L, 3L, 4L}), level3);
 			
 			Connector c4 = new Connector(new RemoteHost(4, "localhost", 1108));
 			c4.setIndex(index);
-			OrdinaryProcess proc4 = new OrdinaryProcess(c4, 4);
-			CandidateProcess proc4_c = new CandidateProcess(c4, 4, Arrays.asList(new Long[] {1L, 2L, 3L, 4L}));
+			OrdinaryProcess proc4 = new OrdinaryProcess(c4, 4, level4);
+			CandidateProcess proc4_c = new CandidateProcess(c4, 4, Arrays.asList(new Long[] {1L, 2L, 3L, 4L}), level4);
 			
 			// Start the ordinary processes
 			proc1.start();
@@ -67,10 +72,14 @@ public class Main {
 			proc3_c.join(10);
 			proc4_c.join(10);
 			
+			boolean correct = !proc1_c.isAlive() && !proc2_c.isAlive() && !proc3_c.isAlive() && !proc4_c.isAlive();
+			
 			System.out.println("Proc1_c was elected: " + proc1_c.isElected());
 			System.out.println("Proc2_c was elected: " + proc2_c.isElected());
 			System.out.println("Proc3_c was elected: " + proc3_c.isElected());
 			System.out.println("Proc4_c was elected: " + proc4_c.isElected());
+			
+			System.out.println("Output is valid: " + correct);
 			
 			// Kill ordinary processes
 			proc1.kill();
