@@ -58,7 +58,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 	
 	@Override
 	public void run(){
-		while (alive && !untraversed.isEmpty()){
+		while (alive && !untraversed.isEmpty() && !killed){
 			long link = untraversed.poll();
 			try {
 				connector.send(link, new CandidateMessage(level, myid));
@@ -70,10 +70,10 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 			while (R){
 				R = false;
 				System.out.println(myid + "] Candidate waiting for message");
-				while (alive && messageQueue.isEmpty()){
+				do {
 					// Wait
 					try { Thread.sleep(100); } catch (InterruptedException e) {}
-				}
+				} while (alive && messageQueue.isEmpty());
 				if (!alive)
 					break;
 				MsgTuple message = messageQueue.poll();
@@ -98,15 +98,13 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 							e.printStackTrace();
 						}
 						killed = true;
-						// Goto R
-						R = true;
 					}
 				}
 			}
 		}
 		System.out.println(myid + "] Exit");
 		if (!killed)
-			elected = true; // TODO notify everyone
+			elected = true;
 	}
 
 	@Override
