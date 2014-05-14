@@ -67,10 +67,10 @@ public class Main {
 			proc4_c.start();
 			
 			// Wait for proc2_c to be elected
-			proc1_c.join(5000);
-			proc2_c.join(500);
-			proc3_c.join(10);
-			proc4_c.join(10);
+			proc1_c.join(7000);
+			proc2_c.join(1000);
+			proc3_c.join(1000);
+			proc4_c.join(1000);
 			
 			boolean correct = !proc1_c.isAlive() && !proc2_c.isAlive() && !proc3_c.isAlive() && !proc4_c.isAlive();
 			

@@ -94,7 +94,7 @@ public class Connector {
 	 */
 	public void receive(long fromProcess, GenericMessage message) throws MalformedURLException, RemoteException, NotBoundException{
 		// Log reception
-		//log("Received " + message.toString() + "\t from " + fromProcess);
+		log("Received " + message.toString() + "\t from " + fromProcess);
 		// Delegate message to listener
 		for (GenericMessageListener listener : gmListeners)
 			listener.receive(message, fromProcess);
