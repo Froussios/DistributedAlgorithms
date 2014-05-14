@@ -3,15 +3,11 @@ package org.da.ass3;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.da.ass3.messages.Acknowledgement;
 import org.da.ass3.messages.CandidateMessage;
 import org.da.ass3.messages.GenericMessage;
-import org.da.ass3.messages.GenericMessage.MessageID;
 
 public class CandidateProcess extends Thread implements GenericMessageListener {
 
@@ -36,10 +32,8 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 	 * 
 	 * Don't forget to run start()!
 	 */
-	public CandidateProcess(Connector connector, long id, Collection<Long> allIds, int[] level){
-		super("OrdinaryProcess");
-		
-		this.level = level;
+	public CandidateProcess(Connector connector, long id, Collection<Long> allIds){
+		super("CandidateProcess");
 		
 		this.connector = connector;
 		this.myid = id;
@@ -58,7 +52,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 
 	private ConcurrentLinkedQueue<MsgTuple> messageQueue = new ConcurrentLinkedQueue<MsgTuple>();
 	private ConcurrentLinkedQueue<Long> untraversed = new ConcurrentLinkedQueue<Long>();
-	private int[] level = null;
+	private int level = 0;
 	private boolean killed = false;
 	private boolean elected = false;
 	
@@ -67,7 +61,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 		while (alive && !untraversed.isEmpty()){
 			long link = untraversed.poll();
 			try {
-				connector.send(link, new CandidateMessage(level[0], myid));
+				connector.send(link, new CandidateMessage(level, myid));
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
 				break;
@@ -85,10 +79,14 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 				MsgTuple message = messageQueue.poll();
 				System.out.println(myid + "] Candidate received message " + message);
 				if (message.getId() == myid && !killed){
-					level[0]++;
+					level++;
 					untraversed.remove(message.getLink());
+					System.out.print(myid + "] Still waiting for confirmations from: ");
+					for (Long l : untraversed)
+						System.out.print("\t" + l);
+					System.out.println();
 				} else {
-					if (message.compareTo(new MsgTuple(level[0], myid)) < 0){
+					if (message.compareTo(new MsgTuple(level, myid)) < 0){
 						// Goto R
 						R = true;
 					} else {
@@ -106,8 +104,9 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 				}
 			}
 		}
+		System.out.println(myid + "] Exit");
 		if (!killed)
-			elected = true;
+			elected = true; // TODO notify everyone
 	}
 
 	@Override
@@ -119,6 +118,10 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 	
 	public boolean isElected() {
 		return elected;
+	}
+	
+	public boolean isDone(){
+		return elected || killed;
 	}
 
 	@Override
