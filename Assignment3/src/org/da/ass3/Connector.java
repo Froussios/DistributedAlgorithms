@@ -8,10 +8,9 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.Semaphore;
 
-import org.da.ass3.GenericMessageListener;
-import org.da.ass3.RemoteHost;
 import org.da.ass3.connector.IRMIConnector;
 import org.da.ass3.connector.RMIReceiver;
 import org.da.ass3.messages.GenericMessage;
@@ -24,15 +23,17 @@ import org.da.ass3.messages.GenericMessage;
  */
 public class Connector {
 
+	private static final Random random = new Random();
+	
 	private static String objectName = "DA-MessageReceiver";
 
-	private ArrayList<GenericMessageListener> gmListeners = new ArrayList<GenericMessageListener>();
+	private final ArrayList<GenericMessageListener> gmListeners = new ArrayList<GenericMessageListener>();
 	
 	private long id;
 	
 	private Map<Long, RemoteHost> index;
 	
-	private Semaphore sem = new Semaphore(1);
+	private final Semaphore sem = new Semaphore(1);
 	
 	/**
 	 * Instantiate a new Connector that receives GenericMessage intances from RMI
@@ -93,6 +94,9 @@ public class Connector {
 	 * @throws MalformedURLException 
 	 */
 	public void receive(long fromProcess, GenericMessage message) throws MalformedURLException, RemoteException, NotBoundException{
+		// Simulate delay
+		this.delay();
+		
 		// Log reception
 		log("Received " + message.toString() + "\t from " + fromProcess);
 		// Delegate message to listener
@@ -134,6 +138,20 @@ public class Connector {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Wait for a random amount of time
+	 */
+	private void delay() {
+		double delay = 40 + random.nextGaussian()*20;
+		if (delay < 10) delay = 10;
+		
+		try {
+			Thread.sleep((long) delay);
+		}
+		catch (InterruptedException e) {
 		}
 	}
 }
