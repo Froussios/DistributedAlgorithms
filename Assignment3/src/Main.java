@@ -4,7 +4,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -21,8 +20,19 @@ public class Main {
 		
 		UniqueGenerator portGenerator = new UniqueGenerator(1105);
 		
-		Collection<Long> allIds = new ArrayList<>(Arrays.asList(1L, 2L, 3L, 4L));
-		Collection<Long> candidateIds = new ArrayList<>(Arrays.asList(1L, 2L, 3L, 4L));
+		Collection<Long> allIds = new ArrayList<>();
+		Collection<Long> candidateIds = new ArrayList<>();
+		
+		int ordinaryCount = 4;
+		int candidateCount = 2;
+		for (long i=1 ; i<=ordinaryCount ; i++) {
+			allIds.add(i);
+			if (i <= candidateCount) 
+				candidateIds.add(i);
+		}
+		
+//		allIds.addAll(Arrays.asList(1L, 2L, 3L, 4L));
+//		candidateIds.addAll(Arrays.asList(1L, 2L, 3L, 4L));
 		
 		ArrayList<Registry> registries = new ArrayList<>();
 		HashMap<Long, RemoteHost> index = new HashMap<Long, RemoteHost>();	
