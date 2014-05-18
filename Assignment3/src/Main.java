@@ -23,8 +23,8 @@ public class Main {
 		Collection<Long> allIds = new ArrayList<>();
 		Collection<Long> candidateIds = new ArrayList<>();
 		
-		int ordinaryCount = 4;
-		int candidateCount = 2;
+		int ordinaryCount = 20;
+		int candidateCount = 20;
 		for (long i=1 ; i<=ordinaryCount ; i++) {
 			allIds.add(i);
 			if (i <= candidateCount) 
@@ -65,14 +65,17 @@ public class Main {
 		}
 		
 		// Wait for election
-		boolean first = true;
 		for (CandidateProcess cp : candidateProcesses) {
-			if (first)
-				cp.join(5000);
-			else
-				cp.join(500);
-			first = false;
+			cp.join();
 		}
+//		boolean first = true;
+//		for (CandidateProcess cp : candidateProcesses) {
+//			if (first)
+//				cp.join(5000);
+//			else
+//				cp.join(500);
+//			first = false;
+//		}	
 		
 		// Print ending state
 		boolean correct = true;
