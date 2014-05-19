@@ -103,8 +103,6 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 			throws MalformedURLException, RemoteException, NotBoundException {
 		if (gm instanceof CandidateMessage){
 			CandidateMessage cm = (CandidateMessage) gm;
-			/*if (cm.getId() == myid)
-				return;*/
 			messageQueue.add(new MsgTuple(cm, fromProcess));
 		}
 	}
