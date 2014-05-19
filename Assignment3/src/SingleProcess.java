@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.rmi.RemoteException;
 import java.util.Map;
 
@@ -34,6 +35,10 @@ public class SingleProcess {
 	
 			OrdinaryProcess op = new OrdinaryProcess(connector, ourid);
 			op.start();
+			
+			FileWriter fw = new FileWriter(ourid + ".txt", false);
+			fw.write(" ");
+			fw.close();
 			
 			File barrier = new File("BARRIER.txt");
 			while (!barrier.exists()){

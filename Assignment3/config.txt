@@ -1,8 +1,0 @@
-1 localhost 24299
-2 localhost 24200
-3 localhost 24201
-4 localhost 24202
-5 localhost 24203
-6 localhost 24204
-# 1 localhost 1500
-# 2 localhost 1501

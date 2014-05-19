@@ -1,8 +1,11 @@
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Scanner;
+
 import org.da.ass3.util.UniqueGenerator;
 
 public class ProcessManager {
@@ -61,6 +64,34 @@ public class ProcessManager {
 				candidate = "y";
 			processes.add(invokeJar("" + i, candidate));
 		}
+
+		System.out.print("Dispatched work, waiting for setup ");
+		for (long i = 1; i <= amount; i++) {
+			File fname = new File(i + ".txt");
+			while (!fname.exists()){
+				try {
+					if (System.in.available() != 0){
+						break;
+					}
+					Thread.sleep(10);	
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}	
+			fname.delete();
+			if (i % (amount/3) == 0)
+				System.out.print(".");
+		}
+		System.out.println();
+		System.out.println("Workload accepted: starting algorithm");
+		
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		/*
 		 * BARRIER
@@ -76,12 +107,18 @@ public class ProcessManager {
 			File fname = new File(i + ".txt");
 			while (!fname.exists()){
 				try {
-					Thread.sleep(500);
+					if (System.in.available() != 0){
+						break;
+					}
+					Thread.sleep(10);	
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}	
+			Scanner sc = new Scanner(fname);
+			System.out.println(i + ": " + sc.nextLine());
+			sc.close();
 		}
 		
 		/*

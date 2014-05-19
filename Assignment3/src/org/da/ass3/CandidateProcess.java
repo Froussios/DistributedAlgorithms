@@ -66,12 +66,14 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 				connector.send(link, new CandidateMessage(level, myid));
 			} catch (MalformedURLException | RemoteException
 					| NotBoundException e) {
+				e.printStackTrace();
 				break;
 			}
 			boolean R = true;
 			while (R){
 				R = false;
 				System.out.println(myid + "] Candidate waiting for message");
+				System.out.flush();
 				do {
 					// Wait
 					try { Thread.sleep(100); } catch (InterruptedException e) {}
