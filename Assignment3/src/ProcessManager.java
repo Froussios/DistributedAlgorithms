@@ -41,9 +41,9 @@ public class ProcessManager {
 		int amount = Integer.valueOf(args[0]);
 		int candidates = Integer.valueOf(args[1]);
 
-		for (int i = 0; i < amount; i++) {
+		for (int i = 1; i <= amount; i++) {
 			int port = portGenerator.next();
-			fw.write(i + " localhost " + port);
+			fw.write(i + " localhost " + port + "\n");
 		}
 		fw.close();
 
@@ -72,7 +72,7 @@ public class ProcessManager {
 		/*
 		 * Gather data 
 		 */
-		for (long i = 1; i <= amount; i++) {
+		for (long i = 1; i <= candidates; i++) {
 			File fname = new File(i + ".txt");
 			while (!fname.exists()){
 				try {

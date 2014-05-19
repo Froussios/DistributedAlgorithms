@@ -41,9 +41,11 @@ public class SingleProcess {
 			}
 			
 			if ("y".equals(args[1])){
-				new CandidateProcess(connector, ourid, hosts.keySet());
+				CandidateProcess cp = new CandidateProcess(connector, ourid, hosts.keySet());
+				cp.start();
 			}
 			
+			op.join();
 		} catch (Exception e){
 			e.printStackTrace();
 		}
