@@ -1,5 +1,7 @@
 package org.da.ass3;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -105,6 +107,15 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 		System.out.println(myid + "] Exit");
 		if (!killed)
 			elected = true;
+		
+		try {
+			FileWriter fw = new FileWriter(myid + ".txt");
+			fw.write("HELLO WORLD! :)");
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
