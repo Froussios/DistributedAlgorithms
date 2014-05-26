@@ -65,6 +65,10 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 				// Construct the current owner tuple to compare to
 				MsgTuple current = new MsgTuple(level, owner_id);
 				
+				// Do not send if this owner and the received owner are the same
+				if ( current.getId() == message.getId() )
+					continue;
+				
 				// Compare
 				int compare = message.compareTo(current);
 				if (compare < 0){
@@ -111,4 +115,5 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 	public long getProcessId() {
 		return myid;
 	}
+	
 }
