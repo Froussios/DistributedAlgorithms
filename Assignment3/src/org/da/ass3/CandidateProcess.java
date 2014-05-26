@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.da.ass3.messages.CandidateMessage;
@@ -13,6 +15,7 @@ import org.da.ass3.messages.GenericMessage;
 
 public class CandidateProcess extends Thread implements GenericMessageListener {
 
+	
 	/**
 	 * Is this thread supposed to stop?
 	 */
@@ -41,7 +44,10 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 		this.myid = id;
 		connector.subscribe(this);
 		
+		// TODO randomize order			
 		this.untraversed.addAll(allIds);
+		
+		
 		untraversed.remove(myid);
 	}
 	
@@ -85,10 +91,8 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 				if (message.getId() == myid && !killed){
 					level++;
 					untraversed.remove(message.getLink());
-					System.out.print(myid + "] Still waiting for confirmations from: ");
-					for (Long l : untraversed)
-						System.out.print("\t" + l);
-					System.out.println();
+					System.out.println(printUntraversed());
+					connector.log(printUntraversed());
 				} else {
 					if (message.compareTo(new MsgTuple(level, myid)) < 0){
 						// Goto R
@@ -102,6 +106,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 							e.printStackTrace();
 						}
 						killed = true;
+						connector.log("X_X");
 					}
 				}
 			}
@@ -118,6 +123,15 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	private String printUntraversed() {
+		String array = myid + "] Still waiting for confirmations from: ";
+		array += "[";
+		for (Long l : untraversed)
+			array += l + ", ";
+		array += "]";
+		return array;
 	}
 
 	@Override
@@ -139,4 +153,5 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 	public long getProcessId() {
 		return myid;
 	}
+	
 }
