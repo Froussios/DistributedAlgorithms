@@ -44,7 +44,7 @@ public class ProcessManager {
 		/*
 		 * Set number of processes
 		 */
-		int amount = 20;
+		int amount = 30;
 		int candidates = amount;
 		if (args.length == 2) {
 			amount = Integer.valueOf(args[0]);
@@ -112,6 +112,7 @@ public class ProcessManager {
 		/*
 		 * Gather data 
 		 */
+		String result = "";
 		for (long i = 1; i <= candidates; i++) {
 			File fname = new File(i + ".txt");
 			while (!fname.exists()){
@@ -126,9 +127,12 @@ public class ProcessManager {
 				}
 			}	
 			Scanner sc = new Scanner(fname);
-			System.out.println(i + ": " + sc.nextLine());
+			String line = i + ": " + sc.nextLine();
+			result += line + "\n";
+			System.out.println(line);
 			sc.close();
 		}
+		//System.out.print(result);
 		
 		/*
 		 * Kill all 
@@ -142,7 +146,8 @@ public class ProcessManager {
 
 	private static class ProcessThread extends Thread{
 		
-		private Process process;
+		private Process process = null;
+		private SingleProcess singleProcess = null;
 		private final String[] args;
 		
 		public ProcessThread(String... args){
@@ -150,11 +155,20 @@ public class ProcessManager {
 		}
 		
 		public void kill(){
-			process.destroy();
+			if (process != null)
+				process.destroy();
+			else if (singleProcess != null)
+				singleProcess.stop();
 		}
 		
+
 		@Override
 		public void run() {
+			runJar();
+//			runThread();
+		}
+		
+		public void runJar() {
 			try {
 				String command = "java -jar ass3.jar";
 				for (String arg : args)
@@ -178,5 +192,14 @@ public class ProcessManager {
 			}
 		}
 		
+		public void runThread() {
+			SingleProcess p = new SingleProcess(args);
+			p.start();
+			try {
+				p.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
