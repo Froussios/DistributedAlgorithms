@@ -145,8 +145,8 @@ public class Connector {
 	 * Wait for a random amount of time
 	 */
 	private void delay() {
-		double delay = 40 + random.nextGaussian()*20;
-		if (delay < 10) delay = 10;
+		double delay = 15 + random.nextGaussian()*5;
+		if (delay < 5) delay = 5;
 		
 		try {
 			Thread.sleep((long) delay);
