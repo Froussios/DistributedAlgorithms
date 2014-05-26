@@ -35,6 +35,7 @@ public class SingleProcess
 			connector.setIndex(hosts);
 	
 			OrdinaryProcess op = new OrdinaryProcess(connector, ourid);
+			CandidateProcess cp = "y".equals(args[1]) ? new CandidateProcess(connector, ourid, hosts.keySet()) : null;
 			op.start();
 			
 			FileWriter fw = new FileWriter(ourid + ".txt", false);
@@ -47,7 +48,6 @@ public class SingleProcess
 			}
 			
 			if ("y".equals(args[1])){
-				CandidateProcess cp = new CandidateProcess(connector, ourid, hosts.keySet());
 				cp.start();
 			}
 			
