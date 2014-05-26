@@ -41,8 +41,15 @@ public class ProcessManager {
 		UniqueGenerator portGenerator = new UniqueGenerator(1105);
 		FileWriter fw = new FileWriter("config.txt", false);
 
-		int amount = Integer.valueOf(args[0]);
-		int candidates = Integer.valueOf(args[1]);
+		/*
+		 * Set number of processes
+		 */
+		int amount = 20;
+		int candidates = amount;
+		if (args.length == 2) {
+			amount = Integer.valueOf(args[0]);
+			candidates = Integer.valueOf(args[1]);
+		}
 
 		for (int i = 1; i <= amount; i++) {
 			int port = portGenerator.next();
@@ -53,6 +60,8 @@ public class ProcessManager {
 		/*
 		 * Launch
 		 */
+		System.out.println("" + amount + " processes, " + candidates + " candidates.");
+		
 		ArrayList<ProcessThread> processes = new ArrayList<ProcessThread>();
 		
 		for (long i = 1; i <= amount; i++) {
