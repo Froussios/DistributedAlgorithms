@@ -11,7 +11,8 @@ import org.da.ass3.OrdinaryProcess;
 import org.da.ass3.RemoteHost;
 
 
-public class SingleProcess {
+public class SingleProcess
+	extends Thread{
 	
 	/**
 	 * args[0] = our id
@@ -63,5 +64,25 @@ public class SingleProcess {
 			java.rmi.server.UnicastRemoteObject.unexportObject(reg,true);
 		}
 	}
+	
+	
+	public final String[] args;
+	
+	
+	public SingleProcess(String... args) {
+		this.args = args;
+	}
+	
+	
+	public void run() {
+		try {
+			SingleProcess.main(args);
+		} catch (FileNotFoundException | RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
 	
 }
