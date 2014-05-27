@@ -57,7 +57,7 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 	public void run(){
 		while (alive){
 			// Wait for a message
-			try { Thread.sleep(100); } catch (InterruptedException e) {}
+			try { Thread.sleep(50); } catch (InterruptedException e) {}
 			if (!messageQueue.isEmpty()){
 				System.out.println(myid + "] Ordinary received message");
 				MsgTuple message = messageQueue.poll();
@@ -66,8 +66,8 @@ public class OrdinaryProcess extends Thread implements GenericMessageListener {
 				MsgTuple current = new MsgTuple(level, owner_id);
 				
 				// Do not send if this owner and the received owner are the same
-				if ( current.getId() == message.getId() )
-					continue;
+				//if ( current.getId() == message.getId() )
+					//continue;
 				
 				// Compare
 				int compare = message.compareTo(current);

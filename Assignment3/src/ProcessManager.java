@@ -142,6 +142,15 @@ public class ProcessManager {
 		}
 		
 		System.out.println("DONE");
+		
+		try {
+			Thread.sleep(2000);
+			System.out.println("Repeat of result:");
+			System.out.print(result);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 
 	private static class ProcessThread extends Thread{
@@ -158,14 +167,14 @@ public class ProcessManager {
 			if (process != null)
 				process.destroy();
 			else if (singleProcess != null)
-				singleProcess.stop();
+				singleProcess.interrupt();
 		}
 		
 
 		@Override
 		public void run() {
 			runJar();
-//			runThread();
+			//runThread();
 		}
 		
 		public void runJar() {
@@ -174,8 +183,14 @@ public class ProcessManager {
 				for (String arg : args)
 					command += " \"" + arg + "\"";
 				process = Runtime.getRuntime().exec(command);
+				ISConsumer stdout = new ISConsumer(process.getInputStream());
+				ISConsumer stderr = new ISConsumer(process.getErrorStream());
+				stdout.start();
+				stderr.start();
 				process.waitFor();
-				InputStream in = process.getInputStream();
+				stdout.kill();
+				stderr.kill();
+				/*InputStream in = process.getInputStream();
 				InputStream err = process.getErrorStream();
 
 				byte b[] = new byte[in.available()];
@@ -184,7 +199,7 @@ public class ProcessManager {
 
 				byte c[] = new byte[err.available()];
 				err.read(c, 0, c.length);
-				System.out.println(new String(c));
+				System.out.println(new String(c));*/
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
@@ -193,12 +208,36 @@ public class ProcessManager {
 		}
 		
 		public void runThread() {
-			SingleProcess p = new SingleProcess(args);
-			p.start();
+			singleProcess = new SingleProcess(args);
+			singleProcess.start();
 			try {
-				p.join();
+				singleProcess.join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			}
+		}
+	}
+	
+	private static class ISConsumer extends Thread{
+		private final InputStream is;
+		private boolean alive = true;
+		
+		public ISConsumer (InputStream is){
+			this.is = is;
+		}
+		
+		public void kill(){
+			alive = false;
+		}
+		
+		public void run(){
+			while (alive){
+				try {
+					is.read();
+					if (is.available() == 0)
+						Thread.sleep(10);
+				} catch (IOException | InterruptedException e) {
+				}
 			}
 		}
 	}

@@ -52,6 +52,8 @@ public class SingleProcess
 			}
 			
 			op.join();
+		} catch (InterruptedException ee) {
+			System.err.println("WARNING: " + me.getId() + " interrupted forcefully!");
 		} catch (Exception e){
 			e.printStackTrace();
 		}
