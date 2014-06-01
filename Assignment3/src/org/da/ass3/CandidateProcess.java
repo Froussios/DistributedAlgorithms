@@ -71,7 +71,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 	
 	@Override
 	public void run(){
-		while (alive && !untraversed.isEmpty() && !killed){
+		while (alive && ((!untraversed.isEmpty() && !killed)||!messageQueue.isEmpty())){
 			long link = untraversed.peek();
 			try {
 				connector.send(link, new CandidateMessage(level, myid));

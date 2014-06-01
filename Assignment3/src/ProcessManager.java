@@ -92,7 +92,7 @@ public class ProcessManager {
 				System.out.print(".");
 		}
 		System.out.println();
-		System.out.println("Workload accepted: starting algorithm (est. time = " + (candidates * Math.log(candidates) * 0.1) + " seconds)");
+		System.out.println("Workload accepted: starting algorithm (est. time = " + ((candidates * Math.log(candidates) + candidates) * 0.1) + " seconds)");
 		
 		try {
 			Thread.sleep(2000);
@@ -110,6 +110,7 @@ public class ProcessManager {
 		/*
 		 * Gather data 
 		 */
+		long startTime = System.currentTimeMillis();
 		System.out.print("Waiting for processes to finish (PRESS ANYKEY+ENTER TO ABORT) ");
 		String result = "";
 		for (long i = 1; i <= candidates; i++) {
@@ -148,7 +149,7 @@ public class ProcessManager {
 			fname.delete();
 		}
 		
-		System.out.println("DONE");
+		System.out.println("DONE, time taken = " + ((System.currentTimeMillis()-startTime)/1000.0d) + " seconds");
 		System.out.print(result);
 	}
 
