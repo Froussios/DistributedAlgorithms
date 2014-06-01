@@ -1,0 +1,6 @@
+1 processes, 1 candidates.
+Dispatched work, waiting for setup (PRESS ANYKEY+ENTER TO ABORT) 
+Workload accepted: starting algorithm (est. time = 0.1 seconds)
+Waiting for processes to finish (PRESS ANYKEY+ENTER TO ABORT) 
+DONE, time taken = 0.211 seconds
+1: elected = true, level = 0

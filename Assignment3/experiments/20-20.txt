@@ -1,0 +1,25 @@
+20 processes, 20 candidates.
+Dispatched work, waiting for setup (PRESS ANYKEY+ENTER TO ABORT) ...
+Workload accepted: starting algorithm (est. time = 7.991464547107981 seconds)
+Waiting for processes to finish (PRESS ANYKEY+ENTER TO ABORT) ...
+DONE, time taken = 7.24 seconds
+1: elected = false, level = 0
+2: elected = false, level = 0
+3: elected = false, level = 0
+4: elected = false, level = 0
+5: elected = false, level = 0
+6: elected = false, level = 0
+7: elected = false, level = 1
+8: elected = false, level = 0
+9: elected = false, level = 3
+10: elected = false, level = 3
+11: elected = false, level = 9
+12: elected = false, level = 0
+13: elected = false, level = 4
+14: elected = false, level = 0
+15: elected = false, level = 5
+16: elected = false, level = 2
+17: elected = false, level = 8
+18: elected = true, level = 72
+19: elected = false, level = 0
+20: elected = false, level = 10

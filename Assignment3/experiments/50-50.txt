@@ -1,0 +1,55 @@
+50 processes, 50 candidates.
+Dispatched work, waiting for setup (PRESS ANYKEY+ENTER TO ABORT) ...
+Workload accepted: starting algorithm (est. time = 24.560115027140732 seconds)
+Waiting for processes to finish (PRESS ANYKEY+ENTER TO ABORT) ...
+DONE, time taken = 20.386 seconds
+1: elected = false, level = 1
+2: elected = false, level = 0
+3: elected = false, level = 0
+4: elected = false, level = 0
+5: elected = false, level = 0
+6: elected = false, level = 7
+7: elected = false, level = 0
+8: elected = false, level = 0
+9: elected = false, level = 0
+10: elected = false, level = 0
+11: elected = false, level = 0
+12: elected = false, level = 0
+13: elected = false, level = 0
+14: elected = false, level = 0
+15: elected = false, level = 0
+16: elected = false, level = 0
+17: elected = false, level = 0
+18: elected = false, level = 5
+19: elected = false, level = 0
+20: elected = false, level = 0
+21: elected = true, level = 190
+22: elected = false, level = 7
+23: elected = false, level = 0
+24: elected = false, level = 0
+25: elected = false, level = 0
+26: elected = false, level = 0
+27: elected = false, level = 0
+28: elected = false, level = 13
+29: elected = false, level = 0
+30: elected = false, level = 0
+31: elected = false, level = 6
+32: elected = false, level = 0
+33: elected = false, level = 0
+34: elected = false, level = 0
+35: elected = false, level = 13
+36: elected = false, level = 1
+37: elected = false, level = 0
+38: elected = false, level = 4
+39: elected = false, level = 4
+40: elected = false, level = 0
+41: elected = false, level = 0
+42: elected = false, level = 0
+43: elected = false, level = 11
+44: elected = false, level = 0
+45: elected = false, level = 4
+46: elected = false, level = 2
+47: elected = false, level = 7
+48: elected = false, level = 0
+49: elected = false, level = 2
+50: elected = false, level = 0
