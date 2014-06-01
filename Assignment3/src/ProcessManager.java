@@ -74,7 +74,7 @@ public class ProcessManager {
 			processes.add(invokeJar("" + i, candidate));
 		}
 
-		System.out.print("Dispatched work, waiting for setup ");
+		System.out.print("Dispatched work, waiting for setup (PRESS ANYKEY+ENTER TO ABORT) ");
 		for (long i = 1; i <= amount; i++) {
 			File fname = new File(i + ".txt");
 			while (!fname.exists()){
@@ -84,7 +84,6 @@ public class ProcessManager {
 					}
 					Thread.sleep(10);	
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}	
@@ -98,7 +97,6 @@ public class ProcessManager {
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
@@ -112,6 +110,7 @@ public class ProcessManager {
 		/*
 		 * Gather data 
 		 */
+		System.out.print("Waiting for processes to finish (PRESS ANYKEY+ENTER TO ABORT) ");
 		String result = "";
 		for (long i = 1; i <= candidates; i++) {
 			File fname = new File(i + ".txt");
@@ -122,17 +121,17 @@ public class ProcessManager {
 					}
 					Thread.sleep(10);	
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}	
 			Scanner sc = new Scanner(fname);
 			String line = i + ": " + sc.nextLine();
 			result += line + "\n";
-			System.out.println(line);
 			sc.close();
+			if (i % (amount/3) == 0)
+				System.out.print(".");
 		}
-		//System.out.print(result);
+		System.out.println();
 		
 		/*
 		 * Kill all 
@@ -141,16 +140,16 @@ public class ProcessManager {
 			t.kill();
 		}
 		
-		System.out.println("DONE");
-		
-		try {
-			Thread.sleep(2000);
-			System.out.println("Repeat of result:");
-			System.out.print(result);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		/*
+		 * Cleanup results
+		 */
+		for (long i = 1; i <= candidates; i++) {
+			File fname = new File(i + ".txt");
+			fname.delete();
 		}
+		
+		System.out.println("DONE");
+		System.out.print(result);
 	}
 
 	private static class ProcessThread extends Thread{
@@ -190,16 +189,6 @@ public class ProcessManager {
 				process.waitFor();
 				stdout.kill();
 				stderr.kill();
-				/*InputStream in = process.getInputStream();
-				InputStream err = process.getErrorStream();
-
-				byte b[] = new byte[in.available()];
-				in.read(b, 0, b.length);
-				System.out.println(new String(b));
-
-				byte c[] = new byte[err.available()];
-				err.read(c, 0, c.length);
-				System.out.println(new String(c));*/
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
