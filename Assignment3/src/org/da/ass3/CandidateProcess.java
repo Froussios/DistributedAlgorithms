@@ -127,7 +127,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 		
 		try {
 			FileWriter fw = new FileWriter(myid + ".txt");
-			fw.write("elected = " + elected);
+			fw.write("elected = " + elected + ", level = " + level);
 			fw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

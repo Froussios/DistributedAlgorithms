@@ -92,7 +92,7 @@ public class ProcessManager {
 				System.out.print(".");
 		}
 		System.out.println();
-		System.out.println("Workload accepted: starting algorithm");
+		System.out.println("Workload accepted: starting algorithm (est. time = " + (candidates * Math.log(candidates) * 0.1) + " seconds)");
 		
 		try {
 			Thread.sleep(2000);
