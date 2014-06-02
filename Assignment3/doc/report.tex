@@ -40,17 +40,35 @@ the same node successively. Furthermore we demote candidate processes that have 
 to just an ordinary process.
 
 \section{Methodology}
+To test our algorithm we simulated a fully distributed environment by giving each process its own JVM environment.
+This is quite costly for the simulating machine, but also far more accurate than testing between two or more
+physical machines as every process has access to the exact same capabilities (and delays).
+In fact through our tests we found that as the memory footprint nears 4 GB and the amount of threads gets close
+to 10,000 our simulating machine starts locking up.
+
+\quad As for our testing methodology we decided to always test the worst case, which occurs when all processes present themselves
+as candidate processes and start the algorithm. By testing the worst cases we should see a curve of the runtime
+that is in the order of $O(n log(n))$ as advertised by the algorithm.
 
 \section{Results}
+We have run tests for the amounts of processes (which are both candidates and ordinary processes at the same time) of:
+1, 10, 20, 30, 50, 80, 100, 130 and 150. For each of these processes we then reported the level it reached and whether
+it was elected (to verify correctness). For each of these experiments we also recorded the total time.
 
-\begin{figure}[h]
+\quad The results of the running time experiments are visualized in \autoref{fig:totaltime} and the measurements of the
+maximum levels are visualized in \autoref{fig:maxlevel}. We see that the running time does seem to follow an $O(n log(n))$ curve
+and that the maximum levels reached seem to follow a linear curve.
+
+\quad Note that due to our optimization, candidates are only killed once. Therefore it does not make much sense to report on this.
+
+\begin{figure}[p]
     \centering
     \includegraphics{totaltime.png}
     \caption{The total time taken for the algorithm to terminate versus the amount of processes}
     \label{fig:totaltime}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[p]
     \centering
     \includegraphics{maxlevel.png}
     \caption{The maximum level achieved versus the amount of processes}
