@@ -58,6 +58,8 @@ it was elected (to verify correctness). For each of these experiments we also re
 \quad The results of the running time experiments are visualized in \autoref{fig:totaltime} and the measurements of the
 maximum levels are visualized in \autoref{fig:maxlevel}. We see that the running time does seem to follow an $O(n log(n))$ curve
 and that the maximum levels reached seem to follow a linear curve.
+Furthermore, \autoref{fig:captures} visualizes the total amount of captures performed in the algorithm versus the amount of
+processes. While this series seems to follow a linear curve it suffers from a lot more noise than the other two metrics.
 
 \quad Note that due to our optimization, candidates are only killed once. Therefore it does not make much sense to report on this.
 
@@ -73,6 +75,13 @@ and that the maximum levels reached seem to follow a linear curve.
     \includegraphics{maxlevel.png}
     \caption{The maximum level achieved versus the amount of processes}
     \label{fig:maxlevel}
+\end{figure}
+
+\begin{figure}[p]
+    \centering
+    \includegraphics{totalcapture.png}
+    \caption{The total amount of caputures in the algorithm versus the amount of processes}
+    \label{fig:captures}
 \end{figure}
 
 \end{document}
