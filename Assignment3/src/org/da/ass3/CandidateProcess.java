@@ -7,6 +7,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -44,11 +45,15 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 		this.myid = id;
 		connector.subscribe(this);
 		
-		// TODO randomize order			
-		this.untraversed.addAll(allIds);
+		ArrayList<Long> remaining = new ArrayList<Long>(allIds);
+		while (!remaining.isEmpty()){
+			int index = (int) Math.round(Math.random()*remaining.size());
+			if (index == remaining.size())
+				index--;
+			untraversed.add(remaining.remove(index));
+		}
 		
-		
-		untraversed.remove(myid);
+		//untraversed.remove((Long) myid);
 	}
 	
 	/**
@@ -66,25 +71,32 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 	
 	@Override
 	public void run(){
-		while (alive && !untraversed.isEmpty() && !killed){
-			long link = untraversed.poll();
-			try {
-				connector.send(link, new CandidateMessage(level, myid));
-			} catch (MalformedURLException | RemoteException
-					| NotBoundException e) {
-				e.printStackTrace();
-				break;
+		while (alive && ((!untraversed.isEmpty() && !killed)||!messageQueue.isEmpty())){
+			long link = 0;
+			if (!killed){
+				link = untraversed.peek();
+				try {
+					connector.send(link, new CandidateMessage(level, myid));
+				} catch (MalformedURLException | RemoteException
+						| NotBoundException e) {
+					e.printStackTrace();
+					break;
+				}
 			}
 			boolean R = true;
 			while (R){
 				R = false;
 				System.out.println(myid + "] Candidate waiting for message");
 				System.out.flush();
+				int timeout = 50;
 				do {
 					// Wait
-					try { Thread.sleep(100); } catch (InterruptedException e) {}
+					try { Thread.sleep(20); } catch (InterruptedException e) {}
+					timeout--;
 				} while (alive && messageQueue.isEmpty());
 				if (!alive)
+					break;
+				if (timeout == 0)
 					break;
 				MsgTuple message = messageQueue.poll();
 				System.out.println(myid + "] Candidate received message " + message);
@@ -93,6 +105,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 					untraversed.remove(message.getLink());
 					System.out.println(printUntraversed());
 					connector.log(printUntraversed());
+					R = link != message.getLink();
 				} else {
 					if (message.compareTo(new MsgTuple(level, myid)) < 0){
 						// Goto R
@@ -117,7 +130,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 		
 		try {
 			FileWriter fw = new FileWriter(myid + ".txt");
-			fw.write("elected = " + elected);
+			fw.write("elected = " + elected + ", level = " + level);
 			fw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -130,6 +143,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 		array += "[";
 		for (Long l : untraversed)
 			array += l + ", ";
+		array = array.substring(0, array.length()-2);
 		array += "]";
 		return array;
 	}

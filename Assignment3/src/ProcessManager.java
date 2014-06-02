@@ -74,7 +74,7 @@ public class ProcessManager {
 			processes.add(invokeJar("" + i, candidate));
 		}
 
-		System.out.print("Dispatched work, waiting for setup ");
+		System.out.print("Dispatched work, waiting for setup (PRESS ANYKEY+ENTER TO ABORT) ");
 		for (long i = 1; i <= amount; i++) {
 			File fname = new File(i + ".txt");
 			while (!fname.exists()){
@@ -84,7 +84,6 @@ public class ProcessManager {
 					}
 					Thread.sleep(10);	
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}	
@@ -93,12 +92,11 @@ public class ProcessManager {
 				System.out.print(".");
 		}
 		System.out.println();
-		System.out.println("Workload accepted: starting algorithm");
+		System.out.println("Workload accepted: starting algorithm (est. time = " + ((candidates * Math.log(candidates) + candidates) * 0.1) + " seconds)");
 		
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
@@ -112,6 +110,8 @@ public class ProcessManager {
 		/*
 		 * Gather data 
 		 */
+		long startTime = System.currentTimeMillis();
+		System.out.print("Waiting for processes to finish (PRESS ANYKEY+ENTER TO ABORT) ");
 		String result = "";
 		for (long i = 1; i <= candidates; i++) {
 			File fname = new File(i + ".txt");
@@ -122,17 +122,17 @@ public class ProcessManager {
 					}
 					Thread.sleep(10);	
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}	
 			Scanner sc = new Scanner(fname);
 			String line = i + ": " + sc.nextLine();
 			result += line + "\n";
-			System.out.println(line);
 			sc.close();
+			if (i % (amount/3) == 0)
+				System.out.print(".");
 		}
-		//System.out.print(result);
+		System.out.println();
 		
 		/*
 		 * Kill all 
@@ -141,7 +141,16 @@ public class ProcessManager {
 			t.kill();
 		}
 		
-		System.out.println("DONE");
+		/*
+		 * Cleanup results
+		 */
+		for (long i = 1; i <= candidates; i++) {
+			File fname = new File(i + ".txt");
+			fname.delete();
+		}
+		
+		System.out.println("DONE, time taken = " + ((System.currentTimeMillis()-startTime)/1000.0d) + " seconds");
+		System.out.print(result);
 	}
 
 	private static class ProcessThread extends Thread{
@@ -158,14 +167,14 @@ public class ProcessManager {
 			if (process != null)
 				process.destroy();
 			else if (singleProcess != null)
-				singleProcess.stop();
+				singleProcess.interrupt();
 		}
 		
 
 		@Override
 		public void run() {
 			runJar();
-//			runThread();
+			//runThread();
 		}
 		
 		public void runJar() {
@@ -174,17 +183,13 @@ public class ProcessManager {
 				for (String arg : args)
 					command += " \"" + arg + "\"";
 				process = Runtime.getRuntime().exec(command);
+				ISConsumer stdout = new ISConsumer(process.getInputStream());
+				ISConsumer stderr = new ISConsumer(process.getErrorStream());
+				stdout.start();
+				stderr.start();
 				process.waitFor();
-				InputStream in = process.getInputStream();
-				InputStream err = process.getErrorStream();
-
-				byte b[] = new byte[in.available()];
-				in.read(b, 0, b.length);
-				System.out.println(new String(b));
-
-				byte c[] = new byte[err.available()];
-				err.read(c, 0, c.length);
-				System.out.println(new String(c));
+				stdout.kill();
+				stderr.kill();
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
@@ -193,12 +198,36 @@ public class ProcessManager {
 		}
 		
 		public void runThread() {
-			SingleProcess p = new SingleProcess(args);
-			p.start();
+			singleProcess = new SingleProcess(args);
+			singleProcess.start();
 			try {
-				p.join();
+				singleProcess.join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			}
+		}
+	}
+	
+	private static class ISConsumer extends Thread{
+		private final InputStream is;
+		private boolean alive = true;
+		
+		public ISConsumer (InputStream is){
+			this.is = is;
+		}
+		
+		public void kill(){
+			alive = false;
+		}
+		
+		public void run(){
+			while (alive){
+				try {
+					is.read();
+					if (is.available() == 0)
+						Thread.sleep(10);
+				} catch (IOException | InterruptedException e) {
+				}
 			}
 		}
 	}

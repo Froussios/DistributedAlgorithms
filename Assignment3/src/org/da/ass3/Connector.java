@@ -110,7 +110,7 @@ public class Connector {
 	 * @param message The message to write to file
 	 */
 	public void log(String message){
-		try {
+		/*try {
 			sem.acquire();
 			FileWriter fw = new FileWriter(id + ".log", true);
 			fw.write(message+"\n");
@@ -121,14 +121,14 @@ public class Connector {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 	
 	/**
 	 * Clear all the messages in the log file for this process
 	 */
 	private void clearLog(){
-		try {
+		/*try {
 			sem.acquire();
 			FileWriter fw = new FileWriter(id + ".log", false);
 			fw.write("");
@@ -138,7 +138,7 @@ public class Connector {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 	
 	/**
