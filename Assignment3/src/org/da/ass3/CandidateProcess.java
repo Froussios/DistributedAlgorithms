@@ -53,7 +53,7 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 			untraversed.add(remaining.remove(index));
 		}
 		
-		untraversed.remove((Long) myid);
+		//untraversed.remove((Long) myid);
 	}
 	
 	/**
@@ -72,13 +72,16 @@ public class CandidateProcess extends Thread implements GenericMessageListener {
 	@Override
 	public void run(){
 		while (alive && ((!untraversed.isEmpty() && !killed)||!messageQueue.isEmpty())){
-			long link = untraversed.peek();
-			try {
-				connector.send(link, new CandidateMessage(level, myid));
-			} catch (MalformedURLException | RemoteException
-					| NotBoundException e) {
-				e.printStackTrace();
-				break;
+			long link = 0;
+			if (!killed){
+				link = untraversed.peek();
+				try {
+					connector.send(link, new CandidateMessage(level, myid));
+				} catch (MalformedURLException | RemoteException
+						| NotBoundException e) {
+					e.printStackTrace();
+					break;
+				}
 			}
 			boolean R = true;
 			while (R){
