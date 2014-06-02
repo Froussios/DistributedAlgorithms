@@ -48,7 +48,8 @@ to 10,000 our simulating machine starts locking up.
 
 \quad As for our testing methodology we decided to always test the worst case, which occurs when all processes present themselves
 as candidate processes and start the algorithm. By testing the worst cases we should see a curve of the runtime
-that is in the order of $O(n log(n))$ as advertised by the algorithm.
+that is in the order of $O(n log(n))$ as advertised by the algorithm. We also simulate message delay with a normal 
+distribution with mean 15 ms and standard deviation of 5 ms.
 
 \section{Results}
 We have run tests for the amounts of processes (which are both candidates and ordinary processes at the same time) of:
@@ -63,7 +64,7 @@ processes. While this series seems to follow a linear curve it suffers from a lo
 
 \quad Note that due to our optimization, candidates are only killed once. Therefore it does not make much sense to report on this.
 
-\begin{figure}[p]
+\begin{figure}[h]
     \centering
     \includegraphics{totaltime.png}
     \caption{The total time taken for the algorithm to terminate versus the amount of processes}
